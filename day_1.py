@@ -1,4 +1,4 @@
-def load_input(filename: str):  # -> list[str]:
+def load_input(filename: str) -> list[str]:
     with open(f"inputs/{filename}") as f:
         return [line.strip() for line in f]
 
