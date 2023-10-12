@@ -1,5 +1,7 @@
 import re
 
+from util import load_line_groups_from_file
+
 
 def height_is_valid(passport_value: str) -> bool:
     if passport_value.endswith("cm"):
@@ -25,7 +27,7 @@ PASSPORT_FIELD_VALIDATORS = {
 ALL_PASSPORT_FIELDS = PASSPORT_FIELD_VALIDATORS.keys()
 
 
-def parse_input() -> list[dict[str:str]]:
+def parse_input() -> list[dict[str, str]]:
     # input file has groups of lines like
 
     # iyr:1928 cid:150 pid:476113241 eyr:2039 hcl:a5ac0f
@@ -34,22 +36,18 @@ def parse_input() -> list[dict[str:str]]:
     #
     # hgt:168cm eyr:2026 ecl:hzl hcl:#fffffd cid:169 pid:920076943
     # byr:1929 iyr:2013
-
-    with open("inputs/day_4.txt") as f:
-        lines = [line.strip() for line in f]
+    grouped_lines = load_line_groups_from_file("inputs/day_4.txt")
 
     passports = []
-    passport_in_progress = {}
 
-    for line in lines:
-        if line == "":
-            passports.append(passport_in_progress)
-            passport_in_progress = {}
-
-        else:
+    for group in grouped_lines:
+        passport_in_progress = {}
+        for line in group:
             for item in line.split(" "):
                 key, value = item.split(":")
                 passport_in_progress[key] = value
+
+        passports.append(passport_in_progress)
 
     return passports
 
