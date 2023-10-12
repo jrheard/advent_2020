@@ -1,28 +1,17 @@
-def load_input() -> list[set[str]]:
-    with open("inputs/day_6.txt") as f:
-        lines = [line.strip() for line in f]
+import functools
 
-    group_answers = []
-    group_answers_in_progress = set()
-
-    for line in lines:
-        if line == "":
-            group_answers.append(group_answers_in_progress)
-            group_answers_in_progress = set()
-
-        else:
-            group_answers_in_progress |= set(line)
-
-    if group_answers_in_progress:
-        group_answers.append(group_answers_in_progress)
-
-    return group_answers
+from util import load_line_groups_from_file
 
 
 def part_1() -> int:
     # For each group, count the number of questions to which anyone answered "yes". What is the sum of those counts?
-    group_answers = load_input()
-    return sum(map(len, group_answers))
+    unprocessed_group_answers = load_line_groups_from_file("inputs/day_6.txt")
+    processed_group_answers = [
+        functools.reduce(lambda x, y: x | set(y), group_answers, set())
+        for group_answers in unprocessed_group_answers
+    ]
+
+    return sum(map(len, processed_group_answers))
 
 
 def part_2() -> int:
