@@ -70,7 +70,28 @@ def part_1() -> int:
 
 
 def part_2() -> int:
-    return 1
+    # How many individual bags are required inside your single shiny gold bag?
+    bag_rules = parse_input()
+
+    # "So, a single shiny gold bag must contain 1 dark olive bag (and the 7 bags
+    # within it) plus 2 vibrant plum bags (and the 11 bags within **each** of
+    # those): 1 + 1*7 + 2 + 2*11 = 32 bags!"
+    #
+    # The "each" there is important, so our `colors_to_check` worklist tracks tuples of (multiplier, color).
+    colors_to_check = {(1, "shiny gold")}
+    num_bags_required = 0
+
+    while colors_to_check:
+        multiplier, color_to_check = colors_to_check.pop()
+
+        num_bags_required += sum(
+            num * multiplier for num, _ in bag_rules[color_to_check]
+        )
+        colors_to_check |= set(
+            (multiplier * num, color) for num, color in bag_rules[color_to_check]
+        )
+
+    return num_bags_required
 
 
 if __name__ == "__main__":
