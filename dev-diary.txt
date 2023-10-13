@@ -1,0 +1,87 @@
+10/13/23
+
+day 7 is starting to finally get interesting / be worth taking notes on
+
+the input looks like this
+
+    light red bags contain 1 bright white bag, 2 muted yellow bags.
+    dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+    bright white bags contain 1 shiny gold bag.
+    muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+    shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+    dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+    vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+    faded blue bags contain no other bags.
+    dotted black bags contain no other bags.
+
+the question is about finding out how many colors of bag can eventually contain a shiny gold bag
+
+obvs i'll use a regex or two to parse the input
+but the question is - parse it into what?
+
+i'm initially thinking about a two-phase process
+first i parse the input into a list of BagRules, where a BagRule looks like
+
+BagRule
+    color: str
+    # a list of tuples like [(1, 'white'), (2, 'muted yellow')]
+    contents: list[tuple[int, str]]
+
+hm actually i think a dict would be better bc i'll be wanting to do fast lookups in that list
+so a `bag_rules` dict of {color: contents}
+
+and then i have a function that - does what?
+hm
+
+the function would either walk that dict (essentially a tree) from the top down, or from the bottom up
+the top-down approach would be easiest but would be the most wasteful from a perf perspective
+the bottom-up approach would be a bit more complicated to figure out i think, but should eliminate a lot of unnecessary work
+so bottom-up
+
+so, how do i solve this problem by walking the `bag_rules` dict from the bottom up?
+
+i think i want to assemble a set of `colors_known_to_contain_shiny_gold`
+
+TODO - is a dict really the right approach, or would a tree be better?
+i guess the tree's root node would be empty, so it's really like a list of trees
+anyway
+
+bleh
+
+ok so we walk the dict and find items like
+
+    dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+    bright white bags contain 1 shiny gold bag.
+    muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+    shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+
+and then we insert 'bright white' and 'muted yellow' into the `known_to_contain_shiny_gold` set
+and then at that point - hm
+
+what if we do something like this
+
+    # first step: initially populate known_to_contain_shiny_gold
+    colors_known_to_contain_shiny_gold = set(
+        color for color, contents in bag_rules.items()
+        if any(bag_name == 'shiny gold' for _, bag_name in contents)
+    )
+
+    colors_to_check = set(
+        color for color in bag_rules.keys()
+        if color not in colors_known_to_contain_shiny_gold and color != 'shiny gold'
+    )
+
+and then like
+
+    while colors_to_check:
+        something
+
+and what's the something? well actually i think it's look a lot like the initial population of `colors_known_to_contain_shiny_gold`
+so that's interesting
+
+so really actually we're constructing, like, two sets?
+`colors_known_to_contain_shiny_gold` and `colors_to_scan_for`
+and whenever we walk the contents of `bag_rules`, we always skip anything from `colors_known_to_contain_shiny_gold`
+
+maybe i should just start getting into code at this point, starting w the regexes
+actually nvm i dont need a regex
