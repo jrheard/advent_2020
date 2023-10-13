@@ -1,9 +1,12 @@
-from sqlite3 import adapt
+import itertools
 
 
 def load_input() -> list[int]:
     with open("inputs/day_10.txt") as f:
-        return list(sorted(int(line.strip()) for line in f))
+        file_joltages = list(sorted(int(line.strip()) for line in f))
+
+    # Treat the charging outlet near your seat as having an effective joltage rating of 0.
+    return [0] + file_joltages
 
 
 def part_1() -> int:
@@ -14,9 +17,6 @@ def part_1() -> int:
     # between the charging outlet, the adapters, and your device.
     # What is the number of 1-jolt differences multiplied by the number of 3-jolt differences?
     usages_per_joltage_difference = {1: 0, 2: 0, 3: 0}
-
-    # Treat the charging outlet near your seat as having an effective joltage rating of 0.
-    adapter_joltages = [0] + adapter_joltages
 
     for i, joltage in enumerate(adapter_joltages):
         if i < len(adapter_joltages) - 1:
@@ -31,8 +31,23 @@ def part_1() -> int:
     return usages_per_joltage_difference[1] * usages_per_joltage_difference[3]
 
 
+def num_available_adapters(adapter_joltages: list[int]) -> int:
+    return sum(
+        1 for joltage in adapter_joltages[1:4] if adapter_joltages[0] - joltage <= 3
+    )
+
+
 def part_2() -> int:
-    return -1
+    joltages = sorted(load_input(), reverse=True)
+
+    num_permutations = 1
+
+    while joltages != [0]:
+        num_available = num_available_adapters(joltages)
+        num_permutations *= num_available
+        joltages = joltages[num_available:]
+
+    return num_permutations
 
 
 if __name__ == "__main__":

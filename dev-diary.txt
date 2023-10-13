@@ -85,3 +85,84 @@ and whenever we walk the contents of `bag_rules`, we always skip anything from `
 
 maybe i should just start getting into code at this point, starting w the regexes
 actually nvm i dont need a regex
+
+ok cool knocked it out
+now it's day 10 part 2
+
+    You glance back down at your bag and try to remember why you brought so many
+    adapters; there must be more than a trillion valid ways to arrange them!
+    Surely, there must be an efficient way to count the arrangements.
+
+    What is the total number of distinct ways you can arrange the adapters to
+    connect the charging outlet to your device?
+
+they bold "more than a trillion" - def sounds like there should be some trick to this
+i guess i could try solving it naively and go from there?
+
+hm
+well now i'm thinking
+
+they give examples like
+
+    (0), 1, 4, 5, 6, 7, 10, 11, 12, 15, 16, 19, (22)
+    (0), 1, 4, 5, 6, 7, 10, 12, 15, 16, 19, (22)
+    (0), 1, 4, 5, 7, 10, 11, 12, 15, 16, 19, (22)
+    (0), 1, 4, 5, 7, 10, 12, 15, 16, 19, (22)
+    (0), 1, 4, 6, 7, 10, 11, 12, 15, 16, 19, (22)
+    (0), 1, 4, 6, 7, 10, 12, 15, 16, 19, (22)
+    (0), 1, 4, 7, 10, 11, 12, 15, 16, 19, (22)
+    (0), 1, 4, 7, 10, 12, 15, 16, 19, (22)
+
+im having vague unformed thoughts about starting at the end and working backward
+but not yet clear on how to structure that approach
+
+but for instance notice that
+    10, 11, 12, 15, 16, 19
+    10, 12, 15, 16, 19
+
+is the rightmost set of permutations
+hm
+
+so let's say we start at the right and work left
+how do we detect that we've reached a point where multiple permutations are possible?
+
+well let's say we're looking at index -1, 19
+what are the three elements to the left of 19?
+12, 15, 16
+only one of those elements is three-or-less away from 19
+
+and so on down the line until we get to 12
+
+what are the three elements to the left of 12?
+7, 10, 11
+two of those elements are three-or-less away from 12
+
+so the idea so far is that we start with the number 1
+and every time we encounter a situation like this, we multiply it by `num_options` (in this example, 2)
+and then we walk to the leftmost valid number to continue from (in this example, 10) and keep going
+
+so let's try that
+
+no, too low - came up with 172186884 but that's less than a trillion
+
+here's what i tried:
+
+    def num_available_adapters(adapter_joltages: list[int]) -> int:
+        return sum(
+            1 for joltage in adapter_joltages[1:4] if adapter_joltages[0] - joltage <= 3
+        )
+
+
+    def part_2() -> int:
+        joltages = sorted(load_input(), reverse=True)
+
+        num_permutations = 1
+
+        while joltages != [0]:
+            num_available = num_available_adapters(joltages)
+            num_permutations *= num_available
+            joltages = joltages[num_available:]
+
+        return num_permutations
+
+so why doesn't this give the right answer?
