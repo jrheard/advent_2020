@@ -39,8 +39,40 @@ def part_1() -> int:
     return does_program_contain_an_infinite_loop(load_input())[1]
 
 
+def does_switching_instruction_fix_program(
+    instructions: list[Instruction],
+    index: int,
+    from_instruction: str,
+    to_instruction: str,
+    instruction_value: int,
+) -> tuple[bool, int]:
+    instructions[index] = (to_instruction, instruction_value)
+    contains_infinite_loop, acc = does_program_contain_an_infinite_loop(instructions)
+    instructions[index] = (from_instruction, instruction_value)
+
+    return contains_infinite_loop, acc
+
+
 def part_2() -> int:
-    return 1
+    # Fix the program so that it terminates normally by changing exactly one jmp (to nop) or nop (to jmp).
+    # What is the value of the accumulator after the program terminates?
+    instructions = load_input()
+    for i, (instruction, value) in enumerate(instructions):
+        if instruction == "jmp":
+            contains_infinite_loop, acc = does_switching_instruction_fix_program(
+                instructions, i, "jmp", "nop", value
+            )
+            if not contains_infinite_loop:
+                return acc
+
+        elif instruction == "nop":
+            contains_infinite_loop, acc = does_switching_instruction_fix_program(
+                instructions, i, "nop", "jmp", value
+            )
+            if not contains_infinite_loop:
+                return acc
+
+    return -1
 
 
 if __name__ == "__main__":
