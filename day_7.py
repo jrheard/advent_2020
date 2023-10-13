@@ -41,8 +41,32 @@ def part_1() -> int:
     # You have a shiny gold bag. If you wanted to carry it in at least one other
     # bag, how many different bag colors would be valid for the outermost bag?
     # (In other words: how many colors can, eventually, contain at least one shiny gold bag?)
-    print(parse_input())
-    return 1
+    bag_rules = parse_input()
+
+    colors_to_look_for = {"shiny gold"}
+    colors_known_to_contain_shiny_gold = set()
+    colors_to_check = set(bag_rules.keys()) - {"shiny gold"}
+
+    while colors_to_look_for:
+        # Pop off a color to look for, like "shiny gold".
+        color_to_look_for = colors_to_look_for.pop()
+
+        bags_that_contain_the_color = set(
+            color_to_check
+            for color_to_check in colors_to_check
+            if any(
+                bag_name == color_to_look_for
+                for _, bag_name in bag_rules[color_to_check]
+            )
+        )
+
+        # At this point we've found all of the colors of bags that directly contain that color.
+        # This means that those colors of bags can all eventually contain shiny gold bags!
+        colors_known_to_contain_shiny_gold |= bags_that_contain_the_color
+        colors_to_look_for |= bags_that_contain_the_color
+        colors_to_check -= bags_that_contain_the_color
+
+    return len(colors_known_to_contain_shiny_gold)
 
 
 def part_2() -> int:
