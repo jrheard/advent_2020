@@ -38,6 +38,18 @@ def part_1() -> int:
 
 
 def part_2() -> int:
+    # The final step in breaking the XMAS encryption relies on the invalid
+    # number you just found: you must find a contiguous set of at least two
+    # numbers in your list which sum to the invalid number from step 1.
+    target_number = part_1()
+
+    xmas_data = load_input()
+    for i in range(len(xmas_data)):
+        for j in range(len(xmas_data) - i):
+            contiguous_numbers = xmas_data[i : i + j]
+            if sum(contiguous_numbers) == target_number:
+                return min(contiguous_numbers) + max(contiguous_numbers)
+
     return 1
 
 
