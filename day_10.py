@@ -1,12 +1,13 @@
+from functools import lru_cache
 import itertools
 
 
-def load_input() -> list[int]:
+def load_input() -> tuple[int]:
     with open("inputs/day_10.txt") as f:
-        file_joltages = list(sorted(int(line.strip()) for line in f))
+        file_joltages = tuple(sorted(int(line.strip()) for line in f))
 
     # Treat the charging outlet near your seat as having an effective joltage rating of 0.
-    return [0] + file_joltages
+    return (0,) + file_joltages
 
 
 def part_1() -> int:
@@ -31,23 +32,31 @@ def part_1() -> int:
     return usages_per_joltage_difference[1] * usages_per_joltage_difference[3]
 
 
-def num_available_adapters(adapter_joltages: list[int]) -> int:
+def num_available_adapters(adapter_joltages: tuple[int]) -> int:
     return sum(
-        1 for joltage in adapter_joltages[1:4] if adapter_joltages[0] - joltage <= 3
+        1 for joltage in adapter_joltages[1:4] if joltage - adapter_joltages[0] <= 3
+    )
+
+
+@lru_cache()
+def num_permutations_of_adapters(joltages: tuple[int]) -> int:
+    if len(joltages) == 1:
+        return 1
+
+    if num_available_adapters(joltages) == 1:
+        return num_permutations_of_adapters(joltages[1:])
+
+    num_available = num_available_adapters(joltages)
+    return sum(
+        num_permutations_of_adapters(joltages[i:]) for i in range(1, num_available + 1)
     )
 
 
 def part_2() -> int:
-    joltages = sorted(load_input(), reverse=True)
-
-    num_permutations = 1
-
-    while joltages != [0]:
-        num_available = num_available_adapters(joltages)
-        num_permutations *= num_available
-        joltages = joltages[num_available:]
-
-    return num_permutations
+    # this one kicked my ass, gave up after spinning my wheels for a couple days,
+    # going with https://0xdf.gitlab.io/adventofcode2020/10's approach
+    # i was close but just didn't quite get there! oh well
+    return num_permutations_of_adapters(load_input())
 
 
 if __name__ == "__main__":
