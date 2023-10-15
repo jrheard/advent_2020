@@ -1,5 +1,8 @@
-from enum import Enum, auto
+from __future__ import annotations
+
+from enum import Enum
 from dataclasses import dataclass
+from functools import lru_cache
 import itertools
 
 # Day 11's looking like game of life; I've implemented that before
@@ -23,17 +26,48 @@ class SeatGrid:
     def value_at(self, x: int, y: int) -> GridValue:
         return self.seats[y * self.width + x]
 
+    # @lru_cache
     def num_occupied_neighbors(self, x: int, y: int) -> int:
         neighbor_coordinates = [
             (xx, yy)
             for xx, yy in itertools.product(range(x - 1, x + 2), range(y - 1, y + 2))
-            if 0 <= xx < self.width and 0 <= yy < self.height
+            if 0 <= xx < self.width and 0 <= yy < self.height and (xx, yy) != (x, y)
         ]
 
         return sum(
             1
-            for (x, y) in neighbor_coordinates
-            if self.value_at(x, y) == GridValue.OCCUPIED_SEAT
+            for (xx, yy) in neighbor_coordinates
+            if self.value_at(xx, yy) == GridValue.OCCUPIED_SEAT
+        )
+
+    def one_round_later(self) -> SeatGrid:
+        # The following rules are applied to every seat simultaneously:
+        # If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
+        # If a seat is occupied (#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
+        # Otherwise, the seat's state does not change.
+        new_seat_values = []
+
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                value = self.value_at(x, y)
+
+                if (
+                    value == GridValue.EMPTY_SEAT
+                    and self.num_occupied_neighbors(x, y) == 0
+                ):
+                    new_value = GridValue.OCCUPIED_SEAT
+                elif (
+                    value == GridValue.OCCUPIED_SEAT
+                    and self.num_occupied_neighbors(x, y) >= 4
+                ):
+                    new_value = GridValue.EMPTY_SEAT
+                else:
+                    new_value = value
+
+                new_seat_values.append(new_value)
+
+        return SeatGrid(
+            seats=tuple(new_seat_values), width=self.width, height=self.height
         )
 
 
@@ -50,8 +84,31 @@ def load_input() -> SeatGrid:
 
 def part_1() -> int:
     grid = load_input()
+
+    # Simulate your seating area by applying the seating rules repeatedly until no seats change state.
+    # How many seats end up occupied?
+    i = 0
     breakpoint()
-    return -1
+    while True:
+        next_grid = grid.one_round_later()
+
+        print(i)
+        if i % 10 == 0:
+            for (i, j), (val_1, val_2) in zip(
+                enumerate(grid.seats), enumerate(next_grid.seats)
+            ):
+                if val_1 != val_2:
+                    print(i, j, val_1, val_2)
+            print(grid.seats)
+            breakpoint()
+
+        if grid == next_grid:
+            break
+
+        grid = next_grid
+        i += 1
+
+    return sum(1 for seat in grid.seats if seat == GridValue.OCCUPIED_SEAT)
 
 
 def part_2() -> int:
