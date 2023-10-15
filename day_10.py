@@ -1,5 +1,4 @@
 from functools import lru_cache
-import itertools
 
 
 def load_input() -> tuple[int]:
