@@ -312,3 +312,53 @@ math is hard
 
 gotta go for the day, if i dont come up with an answer to this one im just gonna look it up and move on;
 i wanna get programming practice, not math practice (although it sure would be nice if i could come up w this one myself)
+
+ok so now im doin day 11
+implementation is going fine so far, its game of life
+but my first pass implementation isn't converging the way they say it should
+
+guess i gotta make a print method
+
+hm
+it looks like seats are going from floor to non-floor
+which should never happen
+how's that happening?
+
+    #.LL.L#.##
+    #LLLLLL.L#
+    L.L.L..L..
+    #LLL.LL.L#
+    #.LL.LL.LL
+    #.LLLL#.##
+    ..L.L.....
+    #LLLLLLLL#
+    #.LLLLLL.L
+    #.#LLLL.##
+
+    ##L###.###
+    .L.L...L..
+    ########L#
+    ##.###.#LL
+    .##..#####
+    LL.#LL.###
+    #L.#L#.###
+    ..#....#L.
+    #L.LL#.L.#
+    ##.#L#.#L#
+
+something wrong with my print method?
+if not, where?
+
+hm
+it looks like i was doing
+
+    for x in range(0, self.height):
+        for y in range(0, self.width):
+
+instead of
+
+    for y in range(0, self.height):
+        for x in range(0, self.width):
+
+why should that have made a difference?
+because it was causing the resulting seats to be appended to the new grid in the wrong order
