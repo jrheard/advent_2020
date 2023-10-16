@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Literal
 
 
 class Direction(Enum):
@@ -26,8 +27,9 @@ class Ship:
     facing_direction: Direction
     position: tuple[int, int]
 
-    # TODO annotate as union of str literals l and r?
-    def turn_in_relative_direction(self, relative_direction: str, value: int) -> Ship:
+    def turn_in_relative_direction(
+        self, relative_direction: Literal["L", "R"], value: int
+    ) -> Ship:
         current_direction_index = DIRECTIONS_IN_ORDER.index(self.facing_direction)
 
         value_in_indexes = value / 90
