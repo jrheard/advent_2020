@@ -44,7 +44,22 @@ def part_1() -> int:
     )
 
 
+def load_indexes_and_bus_ids() -> list[tuple[int, int]]:
+    with open("inputs/day_13.txt") as f:
+        lines = [line.strip() for line in f]
+
+    return [
+        (i, int(bus_id))
+        for i, bus_id in enumerate(lines[1].split(","))
+        if bus_id != "x"
+    ]
+
+
 def part_2() -> int:
+    indexes_and_bus_ids = load_indexes_and_bus_ids()
+    largest_bus_index, largest_bus_id = max(
+        indexes_and_bus_ids, key=lambda index_and_id: index_and_id[1]
+    )
     return -1
 
 

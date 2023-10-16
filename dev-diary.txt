@@ -362,3 +362,31 @@ instead of
 
 why should that have made a difference?
 because it was causing the resulting seats to be appended to the new grid in the wrong order
+
+ok cool neat
+so now i'm working on day 13 part 2
+
+this bus ids and indexes stuff
+bit of a weird problem
+
+my initial idea here is to find the bus with the largest ID
+i feel like that must have a big influence on the shape of the desired timestamp
+
+let's say the biggest id is 853
+and its index is 17
+then the timestamp will need to be a multiple of 836 (853 - 17)
+
+is this, like, a factorization problem?
+
+anyway let's see if that bears out by looking at one of their examples
+
+    1789,37,47,1889 first occurs at timestamp 1202161486.
+
+1889 is at index 3
+timestamp must be a multiple of 1886 then?
+
+>>> 1202161486 % 1886
+568
+
+nope
+bleh
