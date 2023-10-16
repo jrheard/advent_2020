@@ -56,8 +56,7 @@ class SeatGrid:
                 # Didn't find any seats in this direction, occupied or otherwise.
                 return GridValue.FLOOR
 
-            value = self.value_at(x + x_delta, y + y_delta)
-            if value != GridValue.FLOOR:
+            if (value := self.value_at(x + x_delta, y + y_delta)) != GridValue.FLOOR:
                 # Found a seat!
                 return value
 
@@ -120,8 +119,6 @@ class SeatGrid:
                     # Otherwise, the seat's state does not change.
                     new_value = value
 
-                if new_value == GridValue.FLOOR and value != GridValue.FLOOR:
-                    breakpoint()
                 new_seat_values.append(new_value)
 
         return SeatGrid(
@@ -171,9 +168,7 @@ def part_2() -> int:
     # Given the new visibility method and the rule change for occupied seats
     # becoming empty, once equilibrium is reached, how many seats end up occupied?
     while True:
-        next_grid = grid.one_round_later(
-            5, WhichNeighborAlgorithmToUse.LINE_OF_SIGHT
-        )
+        next_grid = grid.one_round_later(5, WhichNeighborAlgorithmToUse.LINE_OF_SIGHT)
 
         if grid == next_grid:
             break
