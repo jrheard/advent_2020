@@ -390,3 +390,53 @@ timestamp must be a multiple of 1886 then?
 
 nope
 bleh
+
+>>> 1202161486 % 1889
+1886
+
+hm
+that's interesting
+
+timestamp must be (a multiple of bus id) - bus_index?
+
+let's try another example
+
+    67,7,x,59,61 first occurs at timestamp 1261476.
+
+biggest id 67 at index 0
+
+>>> 1261476 % 67
+0
+
+let's try one where index isn't 0
+
+    The earliest timestamp that matches the list 17,x,13,19 is 3417.
+
+id 19 at index 3
+
+>>> 3417 % 19
+16
+
+ok cool so it IS the case that the largest bus id and its index are a constraint on the timestamp
+makes sense
+
+so can we say anything about the second-largest? like a general statement about how it influences the timestamp?
+
+    67,7,x,59,61 first occurs at timestamp 1261476.
+
+second-largest is 61 at index 4
+
+>>> 1261476 % 61
+57
+
+cool so it looks like that property holds for all bus ids
+the timestamp must be (a multiple of the bus id) - bus_index
+
+so uh
+how can we use that?
+
+i guess i could generate an infinite list of valid numbers for the largest bus
+and then for each number in the list, validate it against the other bus ids
+
+ok so i wrote that but it's pretty slow
+not really sure what to do to speed it up, will think about it

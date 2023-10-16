@@ -1,3 +1,6 @@
+from typing import Iterator
+
+
 def load_input() -> tuple[int, list[int]]:
     # Your notes (your puzzle input) consist of two lines. The first line is
     # your estimate of the earliest timestamp you could depart on a bus. The
@@ -55,11 +58,38 @@ def load_indexes_and_bus_ids() -> list[tuple[int, int]]:
     ]
 
 
+def generate_potential_timestamps_for_contest(
+    largest_bus_index: int, largest_bus_id: int
+) -> Iterator[int]:
+    i = 1
+    while True:
+        yield largest_bus_id * i - largest_bus_index
+        i += 1
+
+
 def part_2() -> int:
-    indexes_and_bus_ids = load_indexes_and_bus_ids()
+    indexes_and_bus_ids = sorted(
+        load_indexes_and_bus_ids(),
+        key=lambda index_and_id: index_and_id[1],
+        reverse=True,
+    )
     largest_bus_index, largest_bus_id = max(
         indexes_and_bus_ids, key=lambda index_and_id: index_and_id[1]
     )
+
+    last_printed_timestamp = 0
+    for timestamp in generate_potential_timestamps_for_contest(
+        largest_bus_index, largest_bus_id
+    ):
+        if timestamp > last_printed_timestamp * 10:
+            print(timestamp)
+            last_printed_timestamp = timestamp
+        if all(
+            timestamp % bus_id == bus_id - index
+            for index, bus_id in indexes_and_bus_ids
+        ):
+            return timestamp
+
     return -1
 
 
