@@ -58,39 +58,38 @@ def load_indexes_and_bus_ids() -> list[tuple[int, int]]:
     ]
 
 
-def generate_potential_timestamps_for_contest(
-    largest_bus_index: int, largest_bus_id: int
-) -> Iterator[int]:
-    i = 1
-    while True:
-        yield largest_bus_id * i - largest_bus_index
-        i += 1
-
-
 def part_2() -> int:
-    indexes_and_bus_ids = sorted(
-        load_indexes_and_bus_ids(),
-        key=lambda index_and_id: index_and_id[1],
-        reverse=True,
-    )
-    largest_bus_index, largest_bus_id = max(
-        indexes_and_bus_ids, key=lambda index_and_id: index_and_id[1]
-    )
+    # Got stuck on this one, checked https://0xdf.gitlab.io/adventofcode2020/13
+    # Turns out _they_ got stuck too
+    # and they just gave up and copy-pasted this code
+    # so you that's what i'm gonna do too - i'm doing aoc to prep for programming interviews
+    # that will hopefully be happening soon, i don't have time to derail into learning number theory
 
-    last_printed_timestamp = 0
-    for timestamp in generate_potential_timestamps_for_contest(
-        largest_bus_index, largest_bus_id
-    ):
-        if timestamp > last_printed_timestamp * 10:
-            print(timestamp)
-            last_printed_timestamp = timestamp
-        if all(
-            timestamp % bus_id == bus_id - index
-            for index, bus_id in indexes_and_bus_ids
-        ):
-            return timestamp
+    from functools import reduce
 
-    return -1
+    def chinese_remainder(n, a):
+        sum = 0
+        prod = reduce(lambda a, b: a * b, n)
+        for n_i, a_i in zip(n, a):
+            p = prod // n_i
+            sum += a_i * mul_inv(p, n_i) * p
+        return sum % prod
+
+    def mul_inv(a, b):
+        b0 = b
+        x0, x1 = 0, 1
+        if b == 1:
+            return 1
+        while a > 1:
+            q = a // b
+            a, b = b, a % b
+            x0, x1 = x1 - q * x0, x0
+        if x1 < 0:
+            x1 += b0
+        return x1
+
+    offsets = [b - i for i, b in load_indexes_and_bus_ids()]
+    return chinese_remainder([b for _, b in load_indexes_and_bus_ids()], offsets)
 
 
 if __name__ == "__main__":

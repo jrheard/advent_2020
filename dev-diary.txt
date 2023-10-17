@@ -440,3 +440,30 @@ and then for each number in the list, validate it against the other bus ids
 
 ok so i wrote that but it's pretty slow
 not really sure what to do to speed it up, will think about it
+
+ok so let's try this again
+the target number has these properties:
+for each bus id and index:
+    the number is (a multiple of the bus id) - the index
+
+so what if we just assemble that number by hand and see if it's the smallest?
+i dont think it'll be the smallest but can't hurt to check
+
+yeah, no dice
+
+def part_2() -> int:
+    result = 1
+    for index, bus_id in load_indexes_and_bus_ids():
+        result = result * bus_id - index
+
+    return result
+
+2245654873698359
+
+aoc says the answer is too high
+
+i think i'm gonna look this one up too
+
+https://0xdf.gitlab.io/adventofcode2020/13
+_this_ guy got stuck too, says this is number theory stuff
+whee
