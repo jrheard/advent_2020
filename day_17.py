@@ -44,11 +44,11 @@ def find_neighbor_coordinates(x, y, z) -> list[tuple[int, int, int]]:
 def advance_one_step(
     active_coordinates: set[Coordinates], bounds: Bounds
 ) -> tuple[set[Coordinates], Bounds]:
-    active_coordinates = active_coordinates.copy()
+    new_active_coordinates = active_coordinates.copy()
 
-    for x in range(bounds.min_x - 1, bounds.max_x + 1):
-        for y in range(bounds.min_y - 1, bounds.max_y + 1):
-            for z in range(bounds.min_z - 1, bounds.max_z + 1):
+    for x in range(bounds.min_x - 1, bounds.max_x + 2):
+        for y in range(bounds.min_y - 1, bounds.max_y + 2):
+            for z in range(bounds.min_z - 1, bounds.max_z + 2):
                 num_active_neighbors = sum(
                     1
                     for coords in find_neighbor_coordinates(x, y, z)
@@ -61,15 +61,15 @@ def advance_one_step(
                     # If a cube is active and exactly 2 or 3 of its neighbors are
                     # also active, the cube remains active. Otherwise, the cube becomes inactive.
                     if num_active_neighbors not in (2, 3):
-                        active_coordinates.remove(coords)
+                        new_active_coordinates.remove(coords)
 
                 else:
                     # If a cube is inactive but exactly 3 of its neighbors are
                     # active, the cube becomes active. Otherwise, the cube remains inactive.
                     if num_active_neighbors == 3:
-                        active_coordinates.add(coords)
+                        new_active_coordinates.add(coords)
 
-    return active_coordinates, Bounds(
+    return new_active_coordinates, Bounds(
         bounds.min_x - 1,
         bounds.max_x + 1,
         bounds.min_y - 1,
