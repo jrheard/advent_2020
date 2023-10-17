@@ -467,3 +467,53 @@ i think i'm gonna look this one up too
 https://0xdf.gitlab.io/adventofcode2020/13
 _this_ guy got stuck too, says this is number theory stuff
 whee
+
+ok now it's day 17, 3d game of life
+
+    Before any cycles:
+
+    z=0
+    .#.
+    ..#
+    ###
+
+
+    After 1 cycle:
+
+    z=-1
+    #..
+    ..#
+    .#.
+
+    z=0
+    #.#
+    .##
+    .#.
+
+    z=1
+    #..
+    ..#
+    .#.
+
+i don't understand why in this example, the "after 1 cycle" doesn't have 4 rows at z=0
+
+ugh whyy
+
+oh wait
+does it lose a row at thet op???
+let's do this by hand
+
+    .#.
+    ..#
+    ###
+
+    becomes
+
+    ...
+    #.#
+    .##
+    .#.
+
+ok yeah cool
+good! ok phew
+ok so now i can implement
