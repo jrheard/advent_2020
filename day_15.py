@@ -4,12 +4,12 @@ from collections import defaultdict
 STARTING_NUMBERS = [13, 0, 10, 12, 1, 5, 8]
 
 
-def part_1() -> int:
+def run_game_through_turn(end_turn: int) -> int:
     turn = 1
     turns_on_which_number_was_spoken = defaultdict(list)
     most_recent_number = 0
 
-    while turn <= 2020:
+    while turn <= end_turn:
         if turn <= len(STARTING_NUMBERS):
             most_recent_number = number_to_speak = STARTING_NUMBERS[turn - 1]
         else:
@@ -31,8 +31,12 @@ def part_1() -> int:
     return most_recent_number
 
 
+def part_1() -> int:
+    return run_game_through_turn(2020)
+
+
 def part_2() -> int:
-    return -1
+    return run_game_through_turn(30000000)
 
 
 if __name__ == "__main__":
