@@ -576,3 +576,12 @@ at the end of the day i'm always gonna want to transform an input string into so
 and then recursively replace the deepest parenthesized expressions in that data structure with the ints that they evaluate to
 and i'm not sure how a list+string-based approach would be better than this Expression thing,
 bc parenthesized expressions can appear anywhere
+
+ok i made a bunch of progress but still kinda getting my butt kicked
+almost tempted to do two passes here too
+one find_deepest_parentheses_depth fn
+and another find_parent_of_node_with_depth(depth: int) fn
+
+i feel like that'd be easier to get right
+but let's keep that in the back pocket for now
+frick it im gonna just go w that

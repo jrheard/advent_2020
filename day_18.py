@@ -72,10 +72,14 @@ def find_parent_of_deepest_parenthesized_expression(
         else (expression, "left", expression.parentheses_depth)
     )
 
+    print(f"{expression=}, {left_result=}")
     if not expression.right:
         return left_result
 
     right_result = find_parent_of_deepest_parenthesized_expression(expression.right)
+    print(f"{right_result=}")
+
+    # TODO not quite there yet
 
     if left_result[2] < right_result[2]:
         return right_result
@@ -84,25 +88,24 @@ def find_parent_of_deepest_parenthesized_expression(
 
 
 def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
-    parent = find_parent_of_deepest_parenthesized_expression(expression)
+    parent_info = find_parent_of_deepest_parenthesized_expression(expression)
 
-    if not parent:
+    if not parent_info:
         # If there are no nested parenthesized expressions, we're done!
         return
 
-    parent, direction = parent_info
+    parent, direction, _ = parent_info
     if direction == "left":
         assert isinstance(parent.left, Expression)
         parent.left = evaluate_leaf_expression(parent.left)
     else:
-        # TODO XXXXX
-        # what about eg "2 + (3 + 4) + 5"??
-        # TODO how do we not lose the +5?????
-        #
-        # TODO idea: .right is Expression | None, is NEVER an int
-        # and we just always operate on .left
         assert isinstance(parent.right, Expression)
-        parent.right = evaluate_leaf_expression(parent.right)
+        parent.right = Expression(
+            evaluate_leaf_expression(parent.right),
+            None,
+            None,
+            0,  # TODO fill in a better number for 0
+        )
 
     # Recur to replace the next-deepest parenthesized expression.
     replace_parenthesized_expressions_with_ints(expression)
