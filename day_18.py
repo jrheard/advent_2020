@@ -44,57 +44,72 @@ def parse_expression_string(
 
 
 def evaluate_leaf_expression(expression: Expression) -> int:
-    result = 0 if expression.operator == "+" else 1
-    operator = expression.operator
-    while True:
-        assert isinstance(expression.left, int)
+    assert isinstance(expression.left, int)
+    result = expression.left
+
+    while expression is not None:
+        operator = expression.operator
+        assert isinstance(expression.right, Expression)
+        assert isinstance(expression.right.left, int)
 
         if operator == "+":
-            result += expression.left
+            result += expression.right.left
         else:
-            result *= expression.left
+            result *= expression.right.left
 
+        expression = expression.right
         if expression.right is None:
             break
-
-        assert isinstance(expression.right, Expression)
-        expression = expression.right
 
     return result
 
 
-def find_parent_of_deepest_parenthesized_expression(
-    expression: Expression,
-) -> tuple[Expression, Literal["left", "right"], int]:
-    left_result = (
-        find_parent_of_deepest_parenthesized_expression(expression.left)
-        if isinstance(expression.left, Expression)
-        else (expression, "left", expression.parentheses_depth)
-    )
+def find_largest_parentheses_depth_in_expression(expression: Expression) -> int:
+    candidates = [expression.parentheses_depth]
+    if isinstance(expression.left, Expression):
+        candidates.append(find_largest_parentheses_depth_in_expression(expression.left))
+    if isinstance(expression.right, Expression):
+        candidates.append(
+            find_largest_parentheses_depth_in_expression(expression.right)
+        )
 
-    print(f"{expression=}, {left_result=}")
-    if not expression.right:
-        return left_result
+    return max(candidates)
 
-    right_result = find_parent_of_deepest_parenthesized_expression(expression.right)
-    print(f"{right_result=}")
 
-    # TODO not quite there yet
+def find_parent_of_expression_with_depth(
+    expression: Expression, depth: int
+) -> tuple[Expression, Literal["left", "right"]] | None:
+    if isinstance(expression.left, Expression):
+        if expression.left.parentheses_depth == depth:
+            return (expression, "left")
+        elif (
+            left_result := find_parent_of_expression_with_depth(expression.left, depth)
+        ) is not None:
+            return left_result
 
-    if left_result[2] < right_result[2]:
-        return right_result
-    else:
-        return left_result
+    if isinstance(expression.right, Expression):
+        if expression.right.parentheses_depth == depth:
+            return (expression, "right")
+        elif (
+            right_result := find_parent_of_expression_with_depth(
+                expression.right, depth
+            )
+        ) is not None:
+            return right_result
+
+    assert False, "unreachable"
 
 
 def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
-    parent_info = find_parent_of_deepest_parenthesized_expression(expression)
-
-    if not parent_info:
+    largest_depth = find_largest_parentheses_depth_in_expression(expression)
+    if largest_depth == 0:
         # If there are no nested parenthesized expressions, we're done!
         return
 
-    parent, direction, _ = parent_info
+    parent_info = find_parent_of_expression_with_depth(expression, largest_depth)
+    assert parent_info is not None
+
+    parent, direction = parent_info
     if direction == "left":
         assert isinstance(parent.left, Expression)
         parent.left = evaluate_leaf_expression(parent.left)
@@ -104,7 +119,7 @@ def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
             evaluate_leaf_expression(parent.right),
             None,
             None,
-            0,  # TODO fill in a better number for 0
+            0,  # TODO fill in a better number for 0?
         )
 
     # Recur to replace the next-deepest parenthesized expression.
@@ -136,46 +151,10 @@ def find_position_of_matching_closing_parenthesis(string: str) -> int:
 
 
 def part_1() -> int:
-    print(parse_expression_string("2 * 3 + (4 * 5)", 0))
-    print(
-        evaluate_leaf_expression(
-            Expression(
-                left=4,
-                right=Expression(
-                    left=5, right=None, operator=None, parentheses_depth=1
-                ),
-                operator="*",
-                parentheses_depth=1,
-            )
-        )
-    )
-    print(
-        find_parent_of_deepest_parenthesized_expression(
-            Expression(
-                left=2,
-                right=Expression(
-                    left=3,
-                    right=Expression(
-                        left=Expression(
-                            left=4,
-                            right=Expression(
-                                left=5, right=None, operator=None, parentheses_depth=1
-                            ),
-                            operator="*",
-                            parentheses_depth=1,
-                        ),
-                        right=None,
-                        operator=None,
-                        parentheses_depth=0,
-                    ),
-                    operator="+",
-                    parentheses_depth=0,
-                ),
-                operator="*",
-                parentheses_depth=0,
-            )
-        )
-    )
+    expr = parse_expression_string("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", 0)
+    replace_parenthesized_expressions_with_ints(expr)
+    print(expr)
+    print(evaluate_leaf_expression(expr))
     return -1
 
 
