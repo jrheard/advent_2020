@@ -6,7 +6,7 @@ from typing import Literal
 @dataclass
 class Expression:
     left: int | Expression
-    right: int | Expression | None
+    right: Expression | None
     operator: str | None
     parentheses_depth: int
 
@@ -64,19 +64,29 @@ def evaluate_leaf_expression(expression: Expression) -> int:
 
 
 def find_parent_of_deepest_parenthesized_expression(
-    expression,
-) -> tuple[Expression, Literal["left", "right"]] | None:
-    parent = expression
-    max_depth = 0
-    # TODO
+    expression: Expression,
+) -> tuple[Expression, Literal["left", "right"], int]:
+    left_result = (
+        find_parent_of_deepest_parenthesized_expression(expression.left)
+        if isinstance(expression.left, Expression)
+        else (expression, "left", expression.parentheses_depth)
+    )
 
-    pass
+    if not expression.right:
+        return left_result
+
+    right_result = find_parent_of_deepest_parenthesized_expression(expression.right)
+
+    if left_result[2] < right_result[2]:
+        return right_result
+    else:
+        return left_result
 
 
 def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
-    parent_info = find_parent_of_deepest_parenthesized_expression(expression)
+    parent = find_parent_of_deepest_parenthesized_expression(expression)
 
-    if not parent_info:
+    if not parent:
         # If there are no nested parenthesized expressions, we're done!
         return
 
@@ -85,6 +95,12 @@ def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
         assert isinstance(parent.left, Expression)
         parent.left = evaluate_leaf_expression(parent.left)
     else:
+        # TODO XXXXX
+        # what about eg "2 + (3 + 4) + 5"??
+        # TODO how do we not lose the +5?????
+        #
+        # TODO idea: .right is Expression | None, is NEVER an int
+        # and we just always operate on .left
         assert isinstance(parent.right, Expression)
         parent.right = evaluate_leaf_expression(parent.right)
 
@@ -130,7 +146,33 @@ def part_1() -> int:
             )
         )
     )
-    print(parse_expression_string("2 * 3 + (4 * 5)", 0))
+    print(
+        find_parent_of_deepest_parenthesized_expression(
+            Expression(
+                left=2,
+                right=Expression(
+                    left=3,
+                    right=Expression(
+                        left=Expression(
+                            left=4,
+                            right=Expression(
+                                left=5, right=None, operator=None, parentheses_depth=1
+                            ),
+                            operator="*",
+                            parentheses_depth=1,
+                        ),
+                        right=None,
+                        operator=None,
+                        parentheses_depth=0,
+                    ),
+                    operator="+",
+                    parentheses_depth=0,
+                ),
+                operator="*",
+                parentheses_depth=0,
+            )
+        )
+    )
     return -1
 
 

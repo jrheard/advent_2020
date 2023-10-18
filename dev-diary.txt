@@ -566,3 +566,13 @@ so at this point i have a fn for parsing a string into an expression tree
 and i have a fn for evaluating a "leaf" expression
 now i need a fn that takes an expression and recursively replaces the deepest parenthesized expression with an int
 until there are no parenthesized expressions left
+
+man
+i really feel like i'm overcomplicating this
+maybe rewinding and trying some sort of stack-based approach could be better
+i dunno
+
+at the end of the day i'm always gonna want to transform an input string into some data structure
+and then recursively replace the deepest parenthesized expressions in that data structure with the ints that they evaluate to
+and i'm not sure how a list+string-based approach would be better than this Expression thing,
+bc parenthesized expressions can appear anywhere
