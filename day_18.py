@@ -97,8 +97,6 @@ def find_parent_of_expression_with_depth(
         ) is not None:
             return right_result
 
-    assert False, "unreachable"
-
 
 def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
     largest_depth = find_largest_parentheses_depth_in_expression(expression)
@@ -119,7 +117,7 @@ def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
             evaluate_leaf_expression(parent.right),
             None,
             None,
-            0,  # TODO fill in a better number for 0?
+            0,
         )
 
     # Recur to replace the next-deepest parenthesized expression.
@@ -150,12 +148,21 @@ def find_position_of_matching_closing_parenthesis(string: str) -> int:
     return -1
 
 
-def part_1() -> int:
-    expr = parse_expression_string("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", 0)
+def evaluate_expression_string(expression_string: str) -> int:
+    expr = parse_expression_string(expression_string, 0)
     replace_parenthesized_expressions_with_ints(expr)
-    print(expr)
-    print(evaluate_leaf_expression(expr))
-    return -1
+    return evaluate_leaf_expression(expr)
+
+
+def part_1() -> int:
+    # Before you can help with the homework, you need to understand it yourself.
+    # Evaluate the expression on each line of the homework; what is the sum of
+    # the resulting values?
+    values = (
+        evaluate_expression_string(expression_string)
+        for expression_string in load_input()
+    )
+    return sum(values)
 
 
 def part_2() -> int:
