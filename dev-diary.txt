@@ -560,3 +560,9 @@ maybe
 first: find the head of the expression with the greatest nonzero parentheses depth
 second: evaluate it in a nonrecursive way, asserting along the way that all .left values are ints
 maybe a while loop?
+
+ok cool
+so at this point i have a fn for parsing a string into an expression tree
+and i have a fn for evaluating a "leaf" expression
+now i need a fn that takes an expression and recursively replaces the deepest parenthesized expression with an int
+until there are no parenthesized expressions left
