@@ -517,3 +517,46 @@ let's do this by hand
 ok yeah cool
 good! ok phew
 ok so now i can implement
+
+ok day 18
+
+going back and forth about whether or not i should use some kind of tree data structure
+
+or just a recursive function that evaluates strings
+leaning toward the recursive fn
+
+hm
+so i feel like the recursive fn wants to evaluate the leftmost thing
+whether that's a bare number or a parenthesized expression
+
+hm hm hm
+ok so hm
+what if i did like two passes
+one pass to do the parentheses
+and another pass to go left-to-right
+
+hm no hm
+this is tricky bc the recursive fn approach makes it so that the equation is evaluated basically right-to-left
+which i dont want
+
+ugh tree or not? hm
+
+noodling about a recursive pass followed by a left-to-right pass
+hm
+
+ok trying out a tree
+
+
+    print(parse_expression_string("2 * 3 + (4 * 5)", 0))
+    Expression(left=2, right=Expression(left=3,
+    right=Expression(left=Expression(left=4, right=Expression(left=5,
+    right=None, operator=None, parentheses_depth=1), operator='*',
+    parentheses_depth=1), right=None, operator=None, parentheses_depth=0),
+    operator='+', parentheses_depth=0), operator='*', parentheses_depth=0)
+
+can i work with this?
+maybe
+
+first: find the head of the expression with the greatest nonzero parentheses depth
+second: evaluate it in a nonrecursive way, asserting along the way that all .left values are ints
+maybe a while loop?
