@@ -629,3 +629,20 @@ and like come up w all the possible permutations of the string a million times a
 which is not working
 
 so instead i think i should try first evaluating the RULES to come up with the set of all the strings that they allow for
+
+ok, so
+how do i eagerly evaluate these rules?
+what algo + data structures?
+
+keep the dict for now
+the dict is like implicitly a tree i think?
+anyway
+
+hm
+interesting
+i feel like a substitution approach similar to the one from day 18 could be useful here
+but like in the other direction
+instead of collapsing parens into ints, i want to expand non-leaf rules into leaf rules
+except that instead of having one giant huge string like "4 1 5 3 2 9 | 2 3 4 2 5 9 | 2 1 3 5 9",
+i think i'd prefer a list of strings like ["4 1 5 3 2 9", "2 3 4 2 5 9", "2 1 3 5 9]
+or maybe even lists of lists of chars? hm

@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import Any, Iterator
 
 
 def load_input() -> tuple[dict[str, str], list[str]]:
@@ -56,9 +56,46 @@ def does_string_match_rule(string: str, rule_key: str, rules: dict[str, str]) ->
     return does_string_match_rule(string, rule_value, rules)
 
 
+def expand_rule_string(
+    rule_string: str, rules: dict[str, str], leaf_rules: set[str]
+) -> Iterator[str]:
+    for possible_rule_string in rule_string.split(" | "):
+        sub_rules = possible_rule_string.split(" ")
+        if all(sub_rule in leaf_rules for sub_rule in sub_rules):
+            # possible_rule_string is a series of leaf rules (like "4" or "4 5"), yield their value (like "a" or "ab")
+            yield "".join(rules[sub_rule] for sub_rule in sub_rules)
+
+        elif all(sub_rule not in leaf_rules for sub_rule in sub_rules):
+            # possible_rule_string is a series of non-leaf rules, expand them.
+            for string in expand_rule_string(possible_rule_string, rules, leaf_rules):
+                yield string
+
+        # At this point, we know we have a mixture of leaf and non-leaf rules in possible_rule_string.
+        elif len(sub_rules) == 3:
+            # Only one of the inputs is shaped like this, the example input rule "0" with value "4 1 5".
+            # That rule contains a leaf, non-leaf, and leaf rule in that order.
+            # I'm fine with special-casing it because all of the other sub_rule lists will always be of length 2.
+            for string in expand_rule_string(sub_rules[1], rules, leaf_rules):
+                yield f"{rules[sub_rules[0]]}{string}{rules[sub_rules[1]]}"
+
+        else:
+            assert len(sub_rules) == 2
+            if sub_rules[0] in leaf_rules:
+                for string in expand_rule_string(sub_rules[1], rules, leaf_rules):
+                    yield f"{rules[sub_rules[0]]}{string}"
+            else:
+                for string in expand_rule_string(sub_rules[0], rules, leaf_rules):
+                    yield f"{string}{rules[sub_rules[1]]}"
+
+
 def part_1() -> int:
     rules, strings = load_input()
-    return sum(1 for string in strings if does_string_match_rule(string, "0", rules))
+    leaf_rules = {
+        rule_key for rule_key, rule_value in rules.items() if rule_value.startswith('"')
+    }
+    print(list(expand_rule_string("0", rules, leaf_rules)))
+    return -1
+    # return sum(1 for string in strings if does_string_match_rule(string, "0", rules))
 
 
 def part_2() -> int:
