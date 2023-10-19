@@ -585,3 +585,47 @@ and another find_parent_of_node_with_depth(depth: int) fn
 i feel like that'd be easier to get right
 but let's keep that in the back pocket for now
 frick it im gonna just go w that
+
+finished, it's way overengineered, could have just done it w a string based approach, but oh well
+this was good practice in working w trees :) even if it was an objectively worse implementation than what other people did
+
+day 19 looks fun! dependency graph of some kind maybe?
+trees again? :) :) :)
+
+or do i just throw these rules all in a dict and keep them as strings and evaluate them on the fly?
+
+hm
+this is an interesting one
+first pass of implementing on-the-fly solution seems relatively straightforward so far
+but i'm concerned about perf and recursion depth
+
+we'll have to see i guess
+the other approach would be to eagerly compute a big set of all valid strings based on just the rules themselves
+seems like it'd be pretty crazy memory wise though and i dunno that it would buy us much perf either
+
+ok so i'm making progress on initial implementation of 19 part 1
+looking good so far impl wise, code is simple enough
+but not working yet, let's see why
+
+    checking chunked_string=['a', 'babb', 'b'] against sub_rules=['4', '1', '5']
+
+let's add some manual calls
+
+oh lol my leaf comparison was wrong
+it was comparing a to "a", not a to a
+ez fix
+
+ok it solves the example input easily enough
+let's try it on the real input
+bit nervous
+
+ok yeah this is taking a long time
+might have to go w a different implementation
+trying @lru_cache rq just in case
+
+yeah no dice
+ok so so far i've been trying an approach where i check each input string against the rules dict at runtime
+and like come up w all the possible permutations of the string a million times at each level
+which is not working
+
+so instead i think i should try first evaluating the RULES to come up with the set of all the strings that they allow for
