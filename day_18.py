@@ -47,6 +47,9 @@ def evaluate_leaf_expression(expression: Expression) -> int:
     assert isinstance(expression.left, int)
     result = expression.left
 
+    if expression.right is None:
+        return result
+
     while expression is not None:
         operator = expression.operator
         assert isinstance(expression.right, Expression)
@@ -62,6 +65,20 @@ def evaluate_leaf_expression(expression: Expression) -> int:
             break
 
     return result
+
+
+def collapse_arithmetic_expressions(expression: Expression) -> None:
+    while expression.right is not None:
+        if expression.operator == "+":
+            assert isinstance(expression.left, int)
+            assert isinstance(expression.right.left, int)
+            expression.left += expression.right.left
+
+            expression.operator = expression.right.operator
+            expression.right = expression.right.right
+
+        else:
+            expression = expression.right
 
 
 def find_largest_parentheses_depth_in_expression(expression: Expression) -> int:
@@ -98,7 +115,9 @@ def find_parent_of_expression_with_depth(
             return right_result
 
 
-def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
+def replace_parenthesized_expressions_with_ints(
+    expression: Expression, evaluate_leaf_expression_fn
+) -> None:
     largest_depth = find_largest_parentheses_depth_in_expression(expression)
     if largest_depth == 0:
         # If there are no nested parenthesized expressions, we're done!
@@ -110,18 +129,18 @@ def replace_parenthesized_expressions_with_ints(expression: Expression) -> None:
     parent, direction = parent_info
     if direction == "left":
         assert isinstance(parent.left, Expression)
-        parent.left = evaluate_leaf_expression(parent.left)
+        parent.left = evaluate_leaf_expression_fn(parent.left)
     else:
         assert isinstance(parent.right, Expression)
         parent.right = Expression(
-            evaluate_leaf_expression(parent.right),
+            evaluate_leaf_expression_fn(parent.right),
             None,
             None,
             0,
         )
 
     # Recur to replace the next-deepest parenthesized expression.
-    replace_parenthesized_expressions_with_ints(expression)
+    replace_parenthesized_expressions_with_ints(expression, evaluate_leaf_expression_fn)
 
 
 def load_input() -> list[str]:
@@ -150,7 +169,7 @@ def find_position_of_matching_closing_parenthesis(string: str) -> int:
 
 def evaluate_expression_string(expression_string: str) -> int:
     expr = parse_expression_string(expression_string, 0)
-    replace_parenthesized_expressions_with_ints(expr)
+    replace_parenthesized_expressions_with_ints(expr, evaluate_leaf_expression)
     return evaluate_leaf_expression(expr)
 
 
@@ -165,8 +184,28 @@ def part_1() -> int:
     return sum(values)
 
 
+def evaluate_leaf_expression_prioritizing_addition(expression: Expression) -> int:
+    collapse_arithmetic_expressions(expression)
+    return evaluate_leaf_expression(expression)
+
+
+def evaluate_expression_string_prioritizing_addition(expression_string: str) -> int:
+    expr = parse_expression_string(expression_string, 0)
+    replace_parenthesized_expressions_with_ints(
+        expr, evaluate_leaf_expression_prioritizing_addition
+    )
+    return evaluate_leaf_expression_prioritizing_addition(expr)
+
+
 def part_2() -> int:
-    return -1
+    # Now, addition and multiplication have different precedence levels, but
+    # they're not the ones you're familiar with. Instead, addition is evaluated before multiplication.
+    # What do you get if you add up the results of evaluating the homework problems using these new rules?
+    values = (
+        evaluate_expression_string_prioritizing_addition(expression_string)
+        for expression_string in load_input()
+    )
+    return sum(values)
 
 
 if __name__ == "__main__":
