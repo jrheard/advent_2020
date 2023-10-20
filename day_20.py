@@ -108,6 +108,10 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             )
         )
 
+        unplaced_tiles = [
+            other_tile for other_tile in unplaced_tiles if other_tile != tile
+        ]
+
         relevant_match = relevant_matches[0]
 
         # Remember, a match looks like this:
@@ -150,10 +154,6 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
 
         assert position not in placed_tiles
         placed_tiles[position] = tile
-
-        unplaced_tiles = [
-            other_tile for other_tile in unplaced_tiles if other_tile != tile
-        ]
 
     return placed_tiles
 
