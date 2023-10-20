@@ -1250,3 +1250,20 @@ now let's see what our multiple-relevant-matches data looks like
 
 the incoming tile borders one tile on the south and another on the north
 looks good to me!!!
+
+ok so when i run my program and print(len(placed_tiles), len(unplaced_tiles))
+i see
+
+    1 143
+    2 143
+    3 143
+    4 143
+    4 142
+    5 141
+    6 140
+    7 139
+    8 139
+    8 138
+    etc
+
+which is indicating to me that i'm overwriting positions in placed_tiles
