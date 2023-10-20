@@ -111,12 +111,15 @@ def split_string_into_two_chunks_8_chars_at_a_time(
 ) -> Iterator[list[str]]:
     assert len(string) % 8 == 0
 
-    for i in range(1, len(string), 8)[:-1]:
+    for i in range(0, len(string), 8)[:-1]:
         yield [string[:i], string[i:]]
 
 
 def split_string_into_chunks_of_8_chars(string) -> list[str]:
     assert len(string) % 8 == 0
+    if len(string) == 8:
+        return [string]
+
     result = []
     for i in range(0, len(string), 8)[:-1]:
         result.append(string[i : i + 8])
