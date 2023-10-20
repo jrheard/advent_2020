@@ -743,3 +743,47 @@ retooling my impl to work on their sample data
 ok mine works on their sample data now
 but still doesn't give the right answer for my input
 gives 386, which they say is too high and "curiously, is the right answer for someone else" lol
+
+i wish my thing didn't work on their sample so that i could debug it more easily
+difficult to debug when i don't know what the right answer is
+just gotta reread the code+prompt a bunch i guess
+
+ok im adding some prints
+
+    rule_31_strings={'abaababb', 'abaabbba', 'abbabbba', 'abaaabba', 'aababbbb', 'bbaaabbb', 'babababa', 'bbbabbaa', 'baaaabab', 'aaabbaba', 'abbbaaba', 'abaabbaa', 'abbbbabb', 'ababaaab', 'babbbabb', 'aaabaaaa', 'aabaaaab', 'bbbabbbb', 'bbaabaab', 'bbabbbab', 'aaabbbaa', 'abaaabab', 'babbbbba', 'babaaaaa', 'bbaaaaab', 'bbbaabab', 'bbbbbaba', 'babaaaab', 'abbbaaab', 'aabbaaba', 'babaabba', 'aaabaaba', 'babbabbb', 'aabaaaaa', 'aababbba', 'bbbbbbab', 'abbaaaab', 'aaabaabb', 'abababba', 'bababbbb', 'aabaaabb', 'abababab', 'ababbbab', 'bbbababa', 'baabbabb', 'bbaaaabb', 'baabaaaa', 'aaaaabaa', 'baabaaba', 'baaaaabb', 'baabbbaa', 'baaabbaa', 'ababbbba', 'aabababa', 'bbbaaaab', 'baabaaab', 'babaabab', 'abaabbbb', 'abaababa', 'aaabbaaa', 'baaaaaaa', 'bbbbabba', 'bbababbb', 'aaabbbbb', 'babbbbbb', 'ababbabb', 'abbabbbb', 'bbbaaaaa', 'bbbbabbb', 'bbbaabbb', 'babbaabb', 'aabbbaaa', 'abbaaaba', 'aaabbbab', 'bbbbbaab', 'ababbaaa', 'abbbabaa', 'bbaabbbb', 'babaabaa', 'bababaab', 'aaaaaaba', 'abaaabaa', 'baabbaaa', 'bbaabbba', 'ababbbaa', 'abbaabab', 'babbabab', 'baaaabbb', 'abababbb', 'aaabbbba', 'bbbabbba', 'bababbba', 'abbbbaba', 'ababaabb', 'bbaaabba', 'aaabbabb', 'aabbaaab', 'bbabaaaa', 'abbbbbba', 'baaaaaab', 'abbaabba', 'babababb', 'bbaabaaa', 'baaababb', 'abbbaabb', 'babbbbaa', 'ababbaab', 'aabbbabb', 'baaabbab', 'aabbaabb', 'bbbbaaaa', 'abaabaaa', 'abaaaabb', 'baaababa', 'abbbabba', 'aabbabbb', 'abbbbbbb', 'abbbabab', 'aaababab', 'babaabbb', 'babbbbab', 'bbbbabaa', 'bbababaa', 'abaaaaab', 'bbbaabaa', 'aaaabbaa', 'aabababb', 'baaaaaba'}
+    rule_42_strings={'baaaabba', 'babbbaab', 'abbabbab', 'aaaaabbb', 'baababab', 'bbbbbbaa', 'babbbaaa', 'bababbab', 'aababaaa', 'bbbaaaba', 'bbabbbba', 'aaababaa', 'abbbbbaa', 'bbaaaaba', 'baabbaba', 'aabbaaaa', 'abaabaab', 'bbabaaba', 'babbbaba', 'aaaabbab', 'baaabaab', 'aaaabaab', 'abaabbab', 'aabbbbab', 'bbaaabaa', 'baababaa', 'baaabaaa', 'bbabaaab', 'aabaabaa', 'baabbbba', 'abbaaabb', 'abbbabbb', 'babbabaa', 'aabbabba', 'bbaababb', 'abaaaaba', 'aaaaabba', 'baabaabb', 'baaaabaa', 'bbbababb', 'aabbabab', 'bbabbbaa', 'abababaa', 'aabaabba', 'abbabaab', 'bbabaabb', 'aababbab', 'babbabba', 'aabbbaab', 'abbbaaaa', 'bbabbaaa', 'aabbabaa', 'ababaaba', 'aabbbbaa', 'abbaabaa', 'baabbbbb', 'bbbabaab', 'babbaaba', 'bbaabbab', 'aaababbb', 'baabbaab', 'bbbbbabb', 'bbaaaaaa', 'baaabbbb', 'aaaababa', 'abbbbaab', 'bbbaabba', 'bbbbbbba', 'ababbaba', 'abbaabbb', 'baababbb', 'abbababb', 'bbaabbaa', 'abbabaaa', 'bbbaaabb', 'aaabbaab', 'babbaaaa', 'babbaaab', 'aababaab', 'bbbbbbbb', 'bbbbabab', 'aaaaaabb', 'bababaaa', 'bbabbaba', 'aabbbaba', 'bbaababa', 'aabbbbbb', 'aaaabbbb', 'aaaaaaaa', 'babaaaba', 'bbbabbab', 'aabaabbb', 'aaaaabab', 'aaaababb', 'babaaabb', 'aaaabbba', 'bbababab', 'bbbbaaba', 'abbbbaaa', 'bbbbaaab', 'abbabbaa', 'bbaaabab', 'aabbbbba', 'bbbbaabb', 'baabbbab', 'aabaabab', 'bbbabaaa', 'bbabbabb', 'baaabbba', 'aabaaaba', 'abbbbbab', 'ababbbbb', 'bbababba', 'aababbaa', 'bababbaa', 'abbaaaaa', 'aaaaaaab', 'bbbbbaaa', 'abbababa', 'ababaaaa', 'aaaabaaa', 'baababba', 'abaaaaaa', 'aaababba', 'abaaabbb', 'aaabaaab', 'bbabbbbb', 'bbabbaab'}
+
+    does_match? string='bbbababaabaabaabababbbabaababababbabbbbabbabaabababbbaabbbbaaababbbbbaabbaaaaaab'
+    A: string='' matches rule 8
+    does_match? string='ababbbbbaaabbbababaabaababaabaaabbbaaabaaaaaabbbabbbaabababbabab'
+    A: string='' matches rule 8
+    A: string='ababbbbb' matches rule 8
+    does_match? string='aaabbabbababaaababbaaabaaabbaaabbababbbb'
+    A: string='' matches rule 8
+    does_match? string='aaaababbbbbbaabbbbabaabaaaaaabbaabbbbbabaaabbbaabaabbbaaabaabbbbaaabaaaa'
+    A: string='' matches rule 8
+    A: string='aaaababb' matches rule 8
+    B: string='abbbbbabaaabbbaa' matches rule 11
+    does_match? string='aaababaabababbabababbaaa'
+    A: string='' matches rule 8
+    A: string='aaababaa' matches rule 8
+    B: string='bababbabababbaaa' matches rule 11
+    does_match? string='abababaaabbabbaaaaaabaaaaaabaaba'
+    A: string='' matches rule 8
+    A: string='abababaa' matches rule 8
+    A: string='abababaaabbabbaa' matches rule 8
+    B: string='aaaabaaaaaabaaba' matches rule 11
+    does_match? string='bbabbbbbaaaabbbbaabbabbaabbbbbabaababbbababaaaab'
+    A: string='' matches rule 8
+    A: string='bbabbbbb' matches rule 8
+    A: string='bbabbbbbaaaabbbb' matches rule 8
+    B: string='abbbbbabaababbba' matches rule 11
+    does_match? string='babaaabaaabaababbbaaaabb'
+    A: string='' matches rule 8
+    A: string='babaaaba' matches rule 8
+    B: string='aabaababbbaaaabb' matches rule 11
+    5
+
+'' should not match 8
+
+lol ok that was it, right answer was 381 :)

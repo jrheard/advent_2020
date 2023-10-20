@@ -67,25 +67,27 @@ def expand_rule_string(
 def does_string_match_part_2(
     string: str, rule_31_strings: set[str], rule_42_strings: set[str]
 ) -> bool:
-    if len(string) % 8 != 0:
+    if string == "" or len(string) % 8 != 0:
         return False
 
-    for rule_8_part, rule_11_part in split_string_into_two_chunks_8_chars_at_a_time(
-        string
-    ):
-        if does_string_match_rule_8(
-            rule_8_part, rule_42_strings
-        ) and does_string_match_rule_11(rule_11_part, rule_31_strings, rule_42_strings):
-            return True
-
-    return False
+    return any(
+        does_string_match_rule_8(rule_8_part, rule_42_strings)
+        and does_string_match_rule_11(rule_11_part, rule_31_strings, rule_42_strings)
+        for rule_8_part, rule_11_part in split_string_into_two_chunks_8_chars_at_a_time(
+            string
+        )
+    )
 
 
 # 8: 42 | 42 8
 def does_string_match_rule_8(string: str, rule_42_strings: set[str]) -> bool:
+    if string == "":
+        return False
+
     for chunk in split_string_into_chunks_of_8_chars(string):
         if chunk not in rule_42_strings:
             return False
+
     return True
 
 
@@ -110,7 +112,7 @@ def split_string_into_two_chunks_8_chars_at_a_time(
 ) -> Iterator[list[str]]:
     assert len(string) % 8 == 0
 
-    for i in range(0, len(string), 8)[:-1]:
+    for i in range(0, len(string), 8):
         yield [string[:i], string[i:]]
 
 
@@ -148,5 +150,5 @@ def part_2() -> int:
 
 
 if __name__ == "__main__":
-    # print(part_1())
+    print(part_1())
     print(part_2())
