@@ -1043,3 +1043,31 @@ i think i might need to compare tile.border to other_tile.border AND other_tile.
 
 yeah, now i have the right number of entries for 3079
 nice!
+
+ok so anyway
+so i have a list of tiles and a list of matches
+and i need to place them
+i guess you could place any corner at (0, 0) and go from there
+its default orientation can be authoritative bc the resulting image's orientation doesn't matter
+works for me!
+
+wait wait let's back up one more time
+why exactly can't i just figure out what the four corners are immediately and give aoc their ids?
+
+yeah uh i can just do that
+
+    def find_corners(tiles: list[Tile]) -> list[Tile]:
+        matches = find_matches(tiles)
+        return [
+            tile
+            for tile in tiles
+            if len([match for match in matches if match.tile_1_id == tile.id]) == 2
+        ]
+
+
+    def part_1() -> int:
+        tiles = load_input()
+        return reduce(lambda x, y: x * y, [tile.id for tile in find_corners(tiles)])
+
+lol yeah ok that does solve part 1 but for part 2 you do need the full image, which is what i was expecting so no big surprise
+so let's stick with part 1 for now and keep working on filling in the image

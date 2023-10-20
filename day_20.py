@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import reduce
 
 
 @dataclass
@@ -53,12 +54,57 @@ def find_matches(tiles: list[Tile]) -> list[Match]:
     return result
 
 
+def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
+    matches = find_matches(tiles)
+
+    first_corner = next(
+        tile
+        for tile in tiles
+        if len([match for match in matches if match.tile_1_id == tile.id]) == 2
+    )
+
+    # The orientations of the .data and .borders of tiles in `placed_tiles` are authoritative.
+    placed_tiles = {(0, 0): first_corner}
+
+    # The orientations of the .data and .borders of tiles in `unplaced_tiles` are arbitrary
+    # with respect to all other tiles.
+    unplaced_tiles = [tile for tile in tiles if tile != first_corner]
+
+    while unplaced_tiles:
+        matches = find_matches(list(placed_tiles.values()) + unplaced_tiles)
+
+        for tile in unplaced_tiles:
+            relevant_matches = [
+                match
+                for match in matches
+                if match.tile_2_id == tile.id
+                and match.tile_1_id in {tile.id for tile in placed_tiles.values()}
+            ]
+            if not relevant_matches:
+                continue
+
+            breakpoint()
+
+            # TODO:
+            # find (x, y) position of tile
+            # correctly orient tile's borders
+            # correctly orient tile's data
+            # place that correctly oriented tile in placed_tiles
+
+            # TODO will i need to recompute matches?
+            # if not, how will i keep
+
+            unplaced_tiles = [
+                other_tile for other_tile in unplaced_tiles if other_tile != tile
+            ]
+
+    return placed_tiles
+
+
 def part_1() -> int:
     tiles = load_input()
-    matches = find_matches(tiles)
-    from pprint import pprint
-
-    pprint(matches)
+    place_tiles(tiles)
+    # return reduce(lambda x, y: x * y, [tile.id for tile in find_corners(tiles)])
     return -1
 
 
