@@ -787,3 +787,259 @@ ok im adding some prints
 '' should not match 8
 
 lol ok that was it, right answer was 381 :)
+
+ok, starting on 20
+i've parsed the input data into a list of these
+
+    @dataclass
+    class Tile:
+        id: int
+        # Borders are stored in the order (top, right, bottom, left).
+        borders: tuple[str, str, str, str]
+        data: list[str]
+
+an interior tile must have all four borders be matched by surrounding tiles
+an exterior tile must have two or three borders be matched by surrounding tiles (two on corners, three on edges)
+
+it should definitely be possible to use that info to match these guys up
+just - where do we start?
+
+maybe have a fn that takes the list of tiles as input and returns as output a list of matches,
+where a match is like
+    (tile_1_id, tile_1_border_index, tile_2_id, tile_2_border_index)
+?
+
+i was originally thinking of doing something w a bit more ceremony/structure but i wonder if a flat list like that would be fine
+it'll have duplicates in each direction (eg it'll emit a match for (tile_1, tile_2) and another for (tile_2, tile_1))
+but that seems ok to me?
+
+i dunno, maybe it'd be better for it to return a dict of like
+{
+    tile_id: [(tile_border_index, matching_tile_id, matching_tile_border_index)]
+}
+
+that seems potentially more useful
+let's just write it and see what the output data looks like when run on the sample dataset
+kinda feels like the flat list is fine to start out with
+
+ok, here's what we get on the sample data
+
+    [Match(tile_1_id=2311,
+        tile_1_border_index=3,
+        tile_2_id=1951,
+        tile_2_border_index=1),
+    Match(tile_1_id=2311,
+        tile_1_border_index=0,
+        tile_2_id=1427,
+        tile_2_border_index=2),
+    Match(tile_1_id=1951,
+        tile_1_border_index=1,
+        tile_2_id=2311,
+        tile_2_border_index=3),
+    Match(tile_1_id=1951,
+        tile_1_border_index=0,
+        tile_2_id=2729,
+        tile_2_border_index=2),
+    Match(tile_1_id=1171,
+        tile_1_border_index=0,
+        tile_2_id=2473,
+        tile_2_border_index=3),
+    Match(tile_1_id=1427,
+        tile_1_border_index=2,
+        tile_2_id=2311,
+        tile_2_border_index=0),
+    Match(tile_1_id=1427,
+        tile_1_border_index=0,
+        tile_2_id=1489,
+        tile_2_border_index=2),
+    Match(tile_1_id=1427,
+        tile_1_border_index=1,
+        tile_2_id=2473,
+        tile_2_border_index=2),
+    Match(tile_1_id=1427,
+        tile_1_border_index=3,
+        tile_2_id=2729,
+        tile_2_border_index=1),
+    Match(tile_1_id=1489,
+        tile_1_border_index=2,
+        tile_2_id=1427,
+        tile_2_border_index=0),
+    Match(tile_1_id=1489,
+        tile_1_border_index=3,
+        tile_2_id=2971,
+        tile_2_border_index=1),
+    Match(tile_1_id=2473,
+        tile_1_border_index=3,
+        tile_2_id=1171,
+        tile_2_border_index=0),
+    Match(tile_1_id=2473,
+        tile_1_border_index=2,
+        tile_2_id=1427,
+        tile_2_border_index=1),
+    Match(tile_1_id=2971,
+        tile_1_border_index=1,
+        tile_2_id=1489,
+        tile_2_border_index=3),
+    Match(tile_1_id=2971,
+        tile_1_border_index=2,
+        tile_2_id=2729,
+        tile_2_border_index=0),
+    Match(tile_1_id=2729,
+        tile_1_border_index=2,
+        tile_2_id=1951,
+        tile_2_border_index=0),
+    Match(tile_1_id=2729,
+        tile_1_border_index=1,
+        tile_2_id=1427,
+        tile_2_border_index=3),
+    Match(tile_1_id=2729,
+        tile_1_border_index=0,
+        tile_2_id=2971,
+        tile_2_border_index=2)]
+
+looking good to me so far
+so what do we do with that?
+
+do we place interior tiles first or exterior tiles first?
+does it matter?
+
+i'm thinking about several things at once including:
+    what can we do if we just examine exterior tiles to start off?
+    what will the structure of the placement algo be? recursive or while-true? operating until unplaced_tiles=[], right?
+
+what are the properties of placed tiles? (TODO come back later and verify i've implemented these properties)
+    their (x, y) location is known (will have to start tracking this somewhere)
+    their borders are now in (north, east, south, west) order
+    their data is now in the correct orientation
+
+how will we bootstrap this process? ie how will we place the first 2 tiles?
+    we'll pick the first tile in our list and try to place it with all other tiles,
+        for each possible rotation of this tile / other tile
+
+i still don't know if i should go outside-in or inside-out
+maybe it doesn't matter
+
+each round of the algorithm will have to consider (placed_tiles, unplaced_tiles, matches)
+    the goal is to compute, for each tile under examination: (x, y, num_times_to_rotate_tile_to_the_right)
+
+hm
+one risk that comes to mind if we start with an edge
+is that we might not get the orientation right -
+it won't be possible to know until later on whether two edges should be going up, down, left, or right
+that's really the case for just about everything
+hm
+
+this might be a bit more involved than i'd thought
+
+well actually no
+the orientation of the final image can be arbitrary, all that matters is that we connect all the tiles together
+it doesn't matter if the final image is sideways or upside down, bc we just want the ids of the four corners
+
+hm hm
+looking back at my matches from before, i'm comparing them to what the sample data's final image should look like
+    1951    2311    3079
+    2729    1427    2473
+    2971    1489    1171
+
+my matches don't have a single match for 3079, for instance
+i think i might need to compare tile.border to other_tile.border AND other_tile.border.reversed
+
+    [Match(tile_1_id=2311,
+        tile_1_border_index=3,
+        tile_2_id=1951,
+        tile_2_border_index=1),
+    Match(tile_1_id=2311,
+        tile_1_border_index=0,
+        tile_2_id=1427,
+        tile_2_border_index=2),
+    Match(tile_1_id=2311,
+        tile_1_border_index=1,
+        tile_2_id=3079,
+        tile_2_border_index=3),
+    Match(tile_1_id=1951,
+        tile_1_border_index=1,
+        tile_2_id=2311,
+        tile_2_border_index=3),
+    Match(tile_1_id=1951,
+        tile_1_border_index=0,
+        tile_2_id=2729,
+        tile_2_border_index=2),
+    Match(tile_1_id=1171,
+        tile_1_border_index=1,
+        tile_2_id=1489,
+        tile_2_border_index=1),
+    Match(tile_1_id=1171,
+        tile_1_border_index=0,
+        tile_2_id=2473,
+        tile_2_border_index=3),
+    Match(tile_1_id=1427,
+        tile_1_border_index=2,
+        tile_2_id=2311,
+        tile_2_border_index=0),
+    Match(tile_1_id=1427,
+        tile_1_border_index=0,
+        tile_2_id=1489,
+        tile_2_border_index=2),
+    Match(tile_1_id=1427,
+        tile_1_border_index=1,
+        tile_2_id=2473,
+        tile_2_border_index=2),
+    Match(tile_1_id=1427,
+        tile_1_border_index=3,
+        tile_2_id=2729,
+        tile_2_border_index=1),
+    Match(tile_1_id=1489,
+        tile_1_border_index=1,
+        tile_2_id=1171,
+        tile_2_border_index=1),
+    Match(tile_1_id=1489,
+        tile_1_border_index=2,
+        tile_2_id=1427,
+        tile_2_border_index=0),
+    Match(tile_1_id=1489,
+        tile_1_border_index=3,
+        tile_2_id=2971,
+        tile_2_border_index=1),
+    Match(tile_1_id=2473,
+        tile_1_border_index=3,
+        tile_2_id=1171,
+        tile_2_border_index=0),
+    Match(tile_1_id=2473,
+        tile_1_border_index=2,
+        tile_2_id=1427,
+        tile_2_border_index=1),
+    Match(tile_1_id=2473,
+        tile_1_border_index=1,
+        tile_2_id=3079,
+        tile_2_border_index=2),
+    Match(tile_1_id=2971,
+        tile_1_border_index=1,
+        tile_2_id=1489,
+        tile_2_border_index=3),
+    Match(tile_1_id=2971,
+        tile_1_border_index=2,
+        tile_2_id=2729,
+        tile_2_border_index=0),
+    Match(tile_1_id=2729,
+        tile_1_border_index=2,
+        tile_2_id=1951,
+        tile_2_border_index=0),
+    Match(tile_1_id=2729,
+        tile_1_border_index=1,
+        tile_2_id=1427,
+        tile_2_border_index=3),
+    Match(tile_1_id=2729,
+        tile_1_border_index=0,
+        tile_2_id=2971,
+        tile_2_border_index=2),
+    Match(tile_1_id=3079,
+        tile_1_border_index=3,
+        tile_2_id=2311,
+        tile_2_border_index=1),
+    Match(tile_1_id=3079,
+        tile_1_border_index=2,
+        tile_2_id=2473,
+        tile_2_border_index=1)]
+
+yeah, now i have the right number of entries for 3079
+nice!
