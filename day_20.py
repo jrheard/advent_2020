@@ -18,10 +18,31 @@ class Match:
     tile_2_border_index: int
 
 
-def rotate_tile_right(tile: Tile) -> Tile:
-    # TODO
+def print_tile_data(tile: Tile) -> None:
+    print(f"Tile {tile.id}:")
+    print()
+    for line in tile.data:
+        print(line)
 
-    return tile
+
+def rotate_tile_right(tile: Tile) -> Tile:
+    print(f"rotating {tile.id} to the right")
+    rotated_data = ["" for _ in tile.data]
+
+    for line in tile.data:
+        for i, char in enumerate(line):
+            rotated_data[i] = char + rotated_data[i]
+
+    return Tile(id=tile.id, borders=borders_from_data(rotated_data), data=rotated_data)
+
+
+def borders_from_data(data: list[str]) -> tuple[str, str, str, str]:
+    return (
+        data[0],
+        "".join(line[-1] for line in data),
+        data[-1],
+        "".join(line[0] for line in data),
+    )
 
 
 def load_input() -> list[Tile]:
@@ -33,13 +54,7 @@ def load_input() -> list[Tile]:
         tile_id = int(lines[i].split(" ")[1][:-1])
         tile_data = lines[i + 1 : i + 11]
 
-        borders = (
-            tile_data[0],
-            "".join(line[-1] for line in tile_data),
-            tile_data[-1],
-            "".join(line[0] for line in tile_data),
-        )
-        result.append(Tile(tile_id, borders, tile_data))
+        result.append(Tile(tile_id, borders_from_data(tile_data), tile_data))
 
     return result
 
@@ -70,7 +85,7 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
     )
 
     # The orientations of the .data and .borders of tiles in `placed_tiles` are authoritative.
-    placed_tiles = {(0, 0): first_corner}
+    placed_tiles: dict[tuple[int, int], Tile] = {(0, 0): first_corner}
 
     # The orientations of the .data and .borders of tiles in `unplaced_tiles` are arbitrary
     # with respect to all other tiles.
@@ -80,16 +95,18 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
         matches = find_matches(list(placed_tiles.values()) + unplaced_tiles)
 
         for tile in unplaced_tiles:
-            relevant_matches = [
-                match
-                for match in matches
-                if match.tile_2_id == tile.id
-                and match.tile_1_id in {tile.id for tile in placed_tiles.values()}
-            ]
-            if not relevant_matches:
+            try:
+                relevant_match = next(
+                    match
+                    for match in matches
+                    if match.tile_2_id == tile.id
+                    and match.tile_1_id in {tile.id for tile in placed_tiles.values()}
+                )
+            except StopIteration:
                 continue
 
-            [relevant_match] = relevant_matches
+            # TODO infinite loop
+
             # Remember, a match looks like this:
             #   Match(tile_1_id=1117, tile_1_border_index=3, tile_2_id=2003, tile_2_border_index=2)
 
@@ -113,11 +130,22 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
                 tile = rotate_tile_right(tile)
                 num_times_rotated_right += 1
 
-            breakpoint()
+            # Now all we have to do is figure out this tile's placement position.
+            placed_tile_x, placed_tile_y = next(
+                position
+                for position, placed_tile in placed_tiles.items()
+                if placed_tile.id == relevant_match.tile_1_id
+            )
+            if relevant_match.tile_1_border_index == 0:
+                position = (placed_tile_x, placed_tile_y - 1)
+            elif relevant_match.tile_1_border_index == 1:
+                position = (placed_tile_x + 1, placed_tile_y)
+            elif relevant_match.tile_1_border_index == 2:
+                position = (placed_tile_x, placed_tile_y + 1)
+            else:
+                position = (placed_tile_x - 1, placed_tile_y)
 
-            # TODO:
-            # find (x, y) position of tile
-            # place that correctly oriented tile in placed_tiles
+            placed_tiles[position] = tile
 
             unplaced_tiles = [
                 other_tile for other_tile in unplaced_tiles if other_tile != tile
@@ -128,7 +156,8 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
 
 def part_1() -> int:
     tiles = load_input()
-    place_tiles(tiles)
+    placed_tiles = place_tiles(tiles)
+    print(placed_tiles)
     # return reduce(lambda x, y: x * y, [tile.id for tile in find_corners(tiles)])
     return -1
 

@@ -1071,3 +1071,182 @@ yeah uh i can just do that
 
 lol yeah ok that does solve part 1 but for part 2 you do need the full image, which is what i was expecting so no big surprise
 so let's stick with part 1 for now and keep working on filling in the image
+
+making good progress so far
+so the trickiest thing in rotating a tile to the right is rotating its data
+
+    Tile(id=2003,
+        borders=('..#.#....#', '##....#.##', '..#####..#', '..#####.#.'),
+        data=['..#.#....#', '.##..#...#', '#.........', '#.........', '#.........', '#.##...#..', '#..#..##.#', '.......#..', '##.......#', '..#####..#'])
+
+so data[0] should be along the right border, data[1] should be second-from-right, etc
+i think i can do that
+
+ok, let's take a look
+
+    rotating
+    tile.data=['..#.#....#', '.##..#...#', '#.........', '#.........', '#.........', '#.##...#..', '#..#..##.#', '.......#..', '##.......#', '..#####..#']
+    rotate_tile_right(tile).data=['#....#.#..', '#...#..##.', '.........#', '.........#', '.........#', '..#...##.#', '#.##..#..#', '..#.......', '#.......##', '#..#####..']
+    rotating
+    tile.data=['#....#.#..', '#...#..##.', '.........#', '.........#', '.........#', '..#...##.#', '#.##..#..#', '..#.......', '#.......##', '#..#####..']
+    rotate_tile_right(tile).data=['..#.#....#', '.##..#...#', '#.........', '#.........', '#.........', '#.##...#..', '#..#..##.#', '.......#..', '##.......#', '..#####..#']
+    rotating
+    tile.data=['..#.#....#', '.##..#...#', '#.........', '#.........', '#.........', '#.##...#..', '#..#..##.#', '.......#..', '##.......#', '..#####..#']
+    rotate_tile_right(tile).data=['#....#.#..', '#...#..##.', '.........#', '.........#', '.........#', '..#...##.#', '#.##..#..#', '..#.......', '#.......##', '#..#####..']
+
+ugh let's just write a print fn rq
+
+    rotating
+    Tile 2003:
+
+    ..#.#....#
+    .##..#...#
+    #.........
+    #.........
+    #.........
+    #.##...#..
+    #..#..##.#
+    .......#..
+    ##.......#
+    ..#####..#
+
+    Tile 2003:
+
+    #....#.#..
+    #...#..##.
+    .........#
+    .........#
+    .........#
+    ..#...##.#
+    #.##..#..#
+    ..#.......
+    #.......##
+    #..#####..
+
+no, i dont think i did this right yet
+i think i just accidentally reversed each line somehow??
+
+ok how about this
+
+    rotating
+
+    Tile 2003:
+
+    ..#.#....#
+    .##..#...#
+    #.........
+    #.........
+    #.........
+    #.##...#..
+    #..#..##.#
+    .......#..
+    ##.......#
+    ..#####..#
+
+    Tile 2003:
+
+    .#.#####..
+    .#......#.
+    #...#...##
+    #..##.....
+    #........#
+    #.......#.
+    #..#......
+    ..###.....
+    ..........
+    ##.#....##
+
+ok that looks good!!!
+
+ok so now i have an initial pass at tile placement working
+but the first time i run it i notice this:
+
+    (Pdb) relevant_matches
+    [Match(tile_1_id=1361, tile_1_border_index=0, tile_2_id=3517,
+    tile_2_border_index=0), Match(tile_1_id=2003, tile_1_border_index=0,
+    tile_2_id=3517, tile_2_border_index=3)]
+
+    (Pdb) tile
+    Tile(id=3517, borders=('###..##.#.', '.####.#.##', '........##', '#....#.#..'),
+    data=['###..##.#.', '...###...#', '..#......#', '.#.#...#.#', '....#.##.#',
+    '#...#..#..', '...##....#', '#.....###.', '.#..##...#', '........##'])
+
+    (Pdb) placed_tiles
+    {(0, 0): Tile(id=1327, borders=('..##..#..#', '##....#.##', '#..#.##.##',
+    '..##..#..#'), data=['##.##.#..#', '#..#.###..', '..#....##.', '#........#',
+    '.....#.#..', '..#.......', '..#..#...#', '.#.#..#..#', '#.#.......',
+    '#####.###.']), (-1, 0): Tile(id=2003, borders=('..#####.#.', '##....#.##',
+    '..#####..#', '..#####.#.'), data=['##....#.##', '..........', '.....###..',
+    '......#..#', '.#.......#', '#........#', '.....##..#', '##...#...#',
+    '.#......#.', '..#####.#.']), (0, 1): Tile(id=1559, borders=('##.##.#..#',
+    '#..##.#.#.', '#....#..#.', '#.#.##...#'), data=['##.##.#..#', '.....#.#..',
+    '#.#.####..', '...#.#...#', '##....#..#', '#.##...#..', '.#..##.###',
+    '....#..#..', '.#.#.#.#.#', '#....#..#.']), (0, -1): Tile(id=1361,
+    borders=('....#.###.', '#####.###.', '.##..##...', '....#.###.'),
+    data=['.###.#....', '#..##.#..#', '###..#....', '..###....#', '...#...#.#',
+    '#.........', '#.#.#..##.', '....#....#', '..#..#...#', '.###.#####'])}
+
+relevant_matches is suspicious in a bad way - two different placed tiles say that `tile` borders them to the north!
+that's really bad!!
+
+i'll start off by checking my rotate-to-the-right fn
+
+i notice this:
+
+    rotating 2003 to the right
+    rotating 2003 to the right
+    rotating 2003 to the right
+    rotating 1327 to the right
+    rotating 1327 to the right
+    rotating 1361 to the right
+
+let's take another look at tile 2003
+
+    Tile(id=2003, borders=('..#####.#.', '##....#.##', '..#####..#', '..#####.#.'),
+    data=['##....#.##', '..........', '.....###..',
+        '......#..#', '.#.......#', '#........#', '.....##..#', '##...#...#',
+        '.#......#.', '..#####.#.'])
+
+those borders don't look right to me
+
+    rotating 2003 to the right
+    borders before: ('..#.#....#', '##....#.##', '..#####..#', '..#####.#.')
+    borders after: ('..#####.#.', '##....#.##', '..#####..#', '..#####.#.')
+    rotating 2003 to the right
+    borders before: ('..#####.#.', '##....#.##', '..#####..#', '..#####.#.')
+    borders after: ('..#####.#.', '##....#.##', '..#####..#', '..#####.#.')
+    rotating 2003 to the right
+    borders before: ('..#####.#.', '##....#.##', '..#####..#', '..#####.#.')
+    borders after: ('..#####.#.', '##....#.##', '..#####..#', '..#####.#.')
+
+oh i'm stupid
+
+        id=tile.id, borders=(tile.borders[-1],) + tile.borders[1:], data=rotated_data
+
+should be
+
+        id=tile.id, borders=(tile.borders[-1],) + tile.borders[:3], data=rotated_data
+
+ok so end result
+
+    Tile(id=2003, borders=('##....#.##', '..#####..#', '..#####.#.', '..#.#....#'),
+        data=['##....#.##', '..........', '.....###..', '......#..#', '.#.......#',
+        '#........#', '.....##..#', '##...#...#', '.#......#.', '..#####.#.'])
+
+those borders still don't match the rotated data
+
+    Tile(id=2003, borders=('##....#.##', '#..#####..', '..#####.#.', '#....#.#..'),
+        data=['##....#.##', '..........', '.....###..', '......#..#', '.#.......#',
+        '#........#', '.....##..#', '##...#...#', '.#......#.', '..#####.#.'])
+
+ok that looks better to me
+
+now let's see what our multiple-relevant-matches data looks like
+
+    (Pdb) relevant_matches
+    [Match(tile_1_id=1327, tile_1_border_index=2, tile_2_id=1361,
+    tile_2_border_index=1), Match(tile_1_id=1327, tile_1_border_index=0,
+    tile_2_id=1361, tile_2_border_index=1)]
+
+the incoming tile borders one tile on the south and another on the north
+looks good to me!!!
