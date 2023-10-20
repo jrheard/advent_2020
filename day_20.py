@@ -18,6 +18,12 @@ class Match:
     tile_2_border_index: int
 
 
+def rotate_tile_right(tile: Tile) -> Tile:
+    # TODO
+
+    return tile
+
+
 def load_input() -> list[Tile]:
     with open("inputs/day_20.txt") as f:
         lines = [line.strip() for line in f]
@@ -83,16 +89,35 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             if not relevant_matches:
                 continue
 
+            [relevant_match] = relevant_matches
+            # Remember, a match looks like this:
+            #   Match(tile_1_id=1117, tile_1_border_index=3, tile_2_id=2003, tile_2_border_index=2)
+
+            # relevant_match.tile_1_id is a placed tile whose position and orientation are fully known.
+            # relevant_match.tile_2_id is `tile`, whose position is unknown and whose orientation is arbitrary.
+
+            # First, let's figure out `tile`'s correct orientation.
+            # If the match occurs along tile 1's east border, then it occurs along tile 2's west border;
+            # if it occurs along tile 1's south border, then it occurs along tile 2's north border; etc.
+
+            correctly_rotated_tile_2_border_index = (
+                relevant_match.tile_1_border_index + 2
+            ) % 4
+
+            # If correctly_rotated_tile_2_border_index == relevant_match.tile_2_border_index, then we're all set.
+            # Otherwise, we need to rotate tile 2 to the right 1-3 times.
+            num_times_rotated_right = 0
+            while (
+                relevant_match.tile_2_border_index + num_times_rotated_right
+            ) % 4 != correctly_rotated_tile_2_border_index:
+                tile = rotate_tile_right(tile)
+                num_times_rotated_right += 1
+
             breakpoint()
 
             # TODO:
             # find (x, y) position of tile
-            # correctly orient tile's borders
-            # correctly orient tile's data
             # place that correctly oriented tile in placed_tiles
-
-            # TODO will i need to recompute matches?
-            # if not, how will i keep
 
             unplaced_tiles = [
                 other_tile for other_tile in unplaced_tiles if other_tile != tile
