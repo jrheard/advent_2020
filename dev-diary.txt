@@ -651,7 +651,6 @@ argh frick
 
 i was working on that eager evaluation guy and ended up with
 
-
 Traceback (most recent call last):
   File "/Users/jrheard/Dropbox/dev/advent_2020/day_19.py", line 106, in <module>
     print(part_1())
@@ -672,3 +671,63 @@ Traceback (most recent call last):
 RecursionError: maximum recursion depth exceeded
 
 is there a part where i'm not narrowing the stuff i'm passing into the recursive call enough?
+
+yeah whoops fixed
+
+ok i got this working on part 1, which is amazing
+part 2 looks like it could be tricky
+
+maybe it'll give me a better idea for a way to do part 1 too, we'll see
+
+    completely replace rules 8: 42 and 11: 42 31 with the following:
+
+    8: 42 | 42 8
+    11: 42 31 | 42 11 31
+
+    This small change has a big impact: now, the rules do contain loops, and the
+    list of messages they could hypothetically match is infinite. You'll need to
+    determine how these changes affect which messages are valid.
+
+    Fortunately, many of the rules are unaffected by this change; it might help to
+    start by looking at which rules always match the same set of values and how
+    those rules (especially rules 42 and 31) are used by the new versions of rules 8
+    and 11.
+
+ok, let's see
+
+    42: 109 86 | 66 52
+    31: 52 70 | 86 126
+
+hm what if i just run my thing on those rules
+
+    42: {'aabbabba', 'bbbbbaaa', 'bbaabbaa', 'abbababb', 'abbbbaab', 'abaaaaba', 'abbbabbb', 'aaaaaaab', 'baaaabaa', 'bbbbaaba', 'abbbbbab', 'aabbabab', 'bbabbaab', 'aabaabba', 'babbbaba', 'bbbabaab', 'babbbaab', 'abbaabbb', 'bbaababb', 'bbaaaaba', 'abbaabaa', 'abbabbaa', 'bbabbaba', 'ababbaba', 'baababbb', 'babbbaaa', 'aababbaa', 'bababbab', 'abaabaab', 'bbabaaba', 'baabbaab', 'baaaabba', 'aabbbbba', 'bbabbaaa', 'bbababba', 'bbbaaaba', 'bbababab', 'aaaaaabb', 'aaaabbba', 'babaaabb', 'abbbbaaa', 'bbbaaabb', 'baabbbbb', 'aababbab', 'babbaaab', 'abaaaaaa', 'abbaaabb', 'bbbbbbba', 'aaaababb', 'bbaaabaa', 'aabbbbbb', 'abaaabbb', 'abbababa', 'abbabaaa', 'aabaabab', 'bbabaabb', 'baababba', 'babbaaaa', 'aaababbb', 'abbabaab', 'aaaabbbb', 'aabbbaab', 'bbbbbabb', 'baabbaba', 'aabbbbab', 'bbbabaaa', 'aabbaaaa', 'bbaabbab', 'bbaaaaaa', 'bbbbabab', 'baabaabb', 'ababbbbb', 'bababbaa', 'abaabbab', 'ababaaaa', 'aababaaa', 'baaabaaa', 'aaaaaaaa', 'aaabbaab', 'aaaaabab', 'baaabbba', 'ababaaba', 'baabbbab', 'aabbbbaa', 'abbabbab', 'babbabaa', 'abababaa', 'abbbaaaa', 'aaaaabba', 'baababaa', 'bbbbbbbb', 'bbabbabb', 'aabbabaa', 'baaabaab', 'aaaaabbb', 'aaababba', 'bbbaabba', 'bbbbaabb', 'aabbbaba', 'aaaabbab', 'bbabaaab', 'abbbbbaa', 'aaaabaaa', 'bbbbaaab', 'babaaaba', 'aabaabaa', 'baababab', 'bbbabbab', 'babbabba', 'aaabaaab', 'aabaaaba', 'baaabbbb', 'aaababaa', 'babbaaba', 'baabbbba', 'bbaababa', 'bbaaabab', 'bbabbbba', 'bbbababb', 'abbaaaaa', 'aababaab', 'bbabbbaa', 'bbbbbbaa', 'aaaabaab', 'bababaaa', 'bbabbbbb', 'aaaababa', 'aabaabbb'}
+    31: {'baabbaaa', 'babaabba', 'abbaabba', 'babbabbb', 'aababbbb', 'abbaaaba', 'baaaaaba', 'babaaaab', 'abaababb', 'ababbbba', 'baaabbab', 'babbabab', 'bbaabbba', 'babaabaa', 'ababaabb', 'aaaaaaba', 'bbbbbaab', 'abbbaaab', 'aaabbbba', 'aabaaaaa', 'ababbbab', 'baabbbaa', 'baaababb', 'baabaaaa', 'aaaaabaa', 'abaaaabb', 'bbababbb', 'babaabbb', 'abaabaaa', 'bbbaaaaa', 'bbababaa', 'bbaabaab', 'aabaaaab', 'abaabbbb', 'abaabbba', 'abbabbba', 'ababaaab', 'bbbabbbb', 'baabaaba', 'bbbaabbb', 'babbbbab', 'aaabbaaa', 'babbbabb', 'abbbbbbb', 'bbaaaaab', 'abbbbaba', 'bababaab', 'abbabbbb', 'baaaaaaa', 'abbbaaba', 'abaaabaa', 'aaabaabb', 'babaaaaa', 'aabbaaba', 'bbbabbaa', 'bababbba', 'aabababa', 'aaabbabb', 'bbbbabbb', 'abaaabba', 'abbaabab', 'bbbbbaba', 'bbaaabbb', 'aaabaaba', 'babbaabb', 'baaaaabb', 'bbbbabba', 'abababbb', 'aabbaaab', 'baabaaab', 'aaabbbaa', 'bbbaabaa', 'aabaaabb', 'bbbaaaab', 'baaaabab', 'abbbabba', 'bbaaabba', 'babaabab', 'abaaabab', 'aaabbbab', 'abaababa', 'ababbaaa', 'bbbbaaaa', 'abbbabab', 'aabbabbb', 'bbabaaaa', 'baaababa', 'babbbbbb', 'bbbababa', 'bbaabaaa', 'aababbba', 'aabbaabb', 'aabbbaaa', 'aabababb', 'bbaaaabb', 'ababbbaa', 'bbbaabab', 'bababbbb', 'baaaabbb', 'babababb', 'abababba', 'babababa', 'ababbaab', 'bbaabbbb', 'babbbbba', 'baaabbaa', 'abbbaabb', 'bbabbbab', 'bbbabbba', 'abaaaaab', 'abbbabaa', 'abbbbbba', 'aaaabbaa', 'ababbabb', 'babbbbaa', 'abaabbaa', 'abbbbabb', 'aaababab', 'bbbbabaa', 'aaabbbbb', 'baaaaaab', 'baabbabb', 'abababab', 'aabbbabb', 'aaabaaaa', 'abbaaaab', 'bbbbbbab', 'aaabbaba'}
+
+ok
+so 8 is basically saying that either the string has to be in 42's set,
+or that for each chunk of 8 chars in the string,
+that chunk has to be in 42's set
+seems doable
+
+and 11 is saying that the string has to either be a chunk that's in 42's set followed by a chunk that's in 31's set,
+or it has to be 42 11 31
+interesting interesting
+
+hm
+hm hm hm
+the tricky thing here is that
+right now my implementation takes the rules dict and returns a set of strings
+so it's like fully eager
+but instead, now it's going to have to be partially eager and partially lazy
+hm
+
+hmmmmmm.
+maybe my implementation can return a set of strings and a set of regexes?
+do a lot of rules use 8 and 11?
+
+lol just 0
+
+    0: 8 11
+
+TODO does that help? i feel like it should help
+***

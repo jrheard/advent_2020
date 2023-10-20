@@ -1,4 +1,5 @@
-from typing import Any, Iterator
+import itertools
+from typing import Iterator
 
 
 def load_input() -> tuple[dict[str, str], list[str]]:
@@ -13,53 +14,9 @@ def load_input() -> tuple[dict[str, str], list[str]]:
     return rules, lines[delimiter_index + 1 :]
 
 
-def split_string_into_all_possible_chunks(
-    string: str, num_chunks: int
-) -> Iterator[list[str]]:
-    assert num_chunks in (2, 3)
-
-    if num_chunks == 2:
-        for i in range(1, len(string)):
-            yield [string[:i], string[i:]]
-    else:
-        for i in range(1, len(string) - 1):
-            for j in range(i + 1, len(string)):
-                yield [string[:i], string[i:j], string[j:]]
-
-
-def does_string_match_rule(string: str, rule_key: str, rules: dict[str, str]) -> bool:
-    if len(sub_rules := rule_key.split(" ")) > 1:
-        # `rule_key` looks like "4 1 5" or "2 8".
-
-        for chunked_string in split_string_into_all_possible_chunks(
-            string, len(sub_rules)
-        ):
-            if all(
-                does_string_match_rule(chunk, sub_rule, rules)
-                for chunk, sub_rule in zip(chunked_string, sub_rules)
-            ):
-                return True
-
-        return False
-
-    rule_value = rules[rule_key]
-    if rule_value.startswith('"'):
-        # This is a leaf rule, with a value like "a" or "b".
-        return string == rule_value[1]
-
-    if len(candidates := rule_value.split(" | ")) > 1:
-        # The rule's value looks like `10 4 | 2 8 | 6`.
-        return any(
-            does_string_match_rule(string, candidate, rules) for candidate in candidates
-        )
-
-    return does_string_match_rule(string, rule_value, rules)
-
-
 def expand_rule_string(
     rule_string: str, rules: dict[str, str], leaf_rules: set[str]
 ) -> Iterator[str]:
-    # print(f"expanding {rule_string=}")
     for possible_rule_string in rule_string.split(" | "):
         sub_rules = possible_rule_string.split(" ")
         if all(sub_rule in leaf_rules for sub_rule in sub_rules):
@@ -101,6 +58,72 @@ def expand_rule_string(
                     yield f"{string}{rules[sub_rules[1]][1]}"
 
 
+# The instructions said that we should handle our specific list of rules directly rather than
+# try to make a formal grammar, so that's what I'm going to do. This function relies on specific
+# knowledge of our rules 0, 8, 11, 42, and 31:
+# 0: 8 11
+# 8: 42 | 42 8
+# 11: 42 31 | 42 11 31
+# Rules 8 and 11 can loop indefinitely. Rules 42, 31, and all other rules downstream from them cannot loop.
+def does_string_match_part_2(
+    string: str, rule_31_strings: set[str], rule_42_strings: set[str]
+) -> bool:
+    if len(string) % 8 != 0:
+        return False
+
+    for rule_8_part, rule_11_part in split_string_into_two_chunks_8_chars_at_a_time(
+        string
+    ):
+        if does_string_match_rule_8(
+            rule_8_part, rule_42_strings
+        ) and does_string_match_rule_11(rule_11_part, rule_31_strings, rule_42_strings):
+            return True
+
+    return False
+
+
+# 8: 42 | 42 8
+def does_string_match_rule_8(string: str, rule_42_strings: set[str]) -> bool:
+    for chunk in split_string_into_chunks_of_8_chars(string):
+        if chunk not in rule_42_strings:
+            return False
+    return True
+
+
+# 11: 42 31 | 42 11 31
+def does_string_match_rule_11(
+    string: str, rule_31_strings: set[str], rule_42_strings: set[str]
+) -> bool:
+    chunks = split_string_into_chunks_of_8_chars(string)
+    if chunks[0] not in rule_42_strings or chunks[-1] not in rule_31_strings:
+        return False
+
+    if len(chunks) == 2:
+        return True
+
+    return does_string_match_rule_11(
+        "".join(chunks[1:-1]), rule_31_strings, rule_42_strings
+    )
+
+
+def split_string_into_two_chunks_8_chars_at_a_time(
+    string: str,
+) -> Iterator[list[str]]:
+    assert len(string) % 8 == 0
+
+    for i in range(1, len(string), 8)[:-1]:
+        yield [string[:i], string[i:]]
+
+
+def split_string_into_chunks_of_8_chars(string) -> list[str]:
+    assert len(string) % 8 == 0
+    result = []
+    for i in range(0, len(string), 8)[:-1]:
+        result.append(string[i : i + 8])
+
+    return result
+
+
 def part_1() -> int:
     rules, strings = load_input()
     leaf_rules = {
@@ -111,9 +134,19 @@ def part_1() -> int:
 
 
 def part_2() -> int:
-    return -1
+    rules, strings = load_input()
+    leaf_rules = {
+        rule_key for rule_key, rule_value in rules.items() if rule_value.startswith('"')
+    }
+    rule_31_strings = set(expand_rule_string("31", rules, leaf_rules))
+    rule_42_strings = set(expand_rule_string("42", rules, leaf_rules))
+    return sum(
+        1
+        for string in strings
+        if does_string_match_part_2(string, rule_31_strings, rule_42_strings)
+    )
 
 
 if __name__ == "__main__":
-    print(part_1())
+    # print(part_1())
     print(part_2())
