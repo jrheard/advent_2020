@@ -1267,3 +1267,99 @@ i see
     etc
 
 which is indicating to me that i'm overwriting positions in placed_tiles
+
+ok here's a situation where we are trying to do that
+    -> assert position not in placed_tiles
+    (Pdb) position
+    (-5, -7)
+
+    (Pdb) placed_tiles.keys()
+    dict_keys([(0, 0), (-1, 0), (-2, 0), (-3, 0), (-2, 1), (-2, 2), (-4, 0), (-5, 0), (-6, 0), (-7, 0), (-7, -1), (-4, -1), (-6, 1), (-2, 3), (-3, 3), (-3, 4), (-3, 5), (-4, 4), (-3, 6), (-7, -2), (-6, -2), (-5, -2), (-4, -2), (-4, -3), (-4, -4), (-5, -4), (-6, -4), (-6, -3), (-2, 6), (-1, 6), (0, 6), (0, 7), (-4, 3), (-5, 3), (-5, 2), (-6, 3), (-6, 2), (-4, -5), (-4, -6), (-3, -6), (-5, -6), (-4, -7), (-4, -8), (-5, -8), (-5, -7)])
+
+    (Pdb) relevant_match
+    Match(tile_1_id=1093, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=3)
+
+    (Pdb) placed_tile_x, placed_tile_y
+    (-5, -6)
+
+    (Pdb) placed_tiles[(-5, -6)]
+    Tile(id=1093, borders=('#######.#.', '.....##.##', '..#.#..###',
+        '#..#....#.'), data=['#######.#.', '....#..#..', '...##.##..', '###.......',
+        '.......#..', '.#...##..#', '......##.#', '.#....##..', '#.....#.##',
+        '..#.#..###'])
+
+    (Pdb) tile
+    Tile(id=2957, borders=('#.###.#..#', '####.##...', '#######.#.',
+        '#####..###'), data=['#.###.#..#', '#......#.#', '#.....#..#', '#...#..###',
+        '#......#..', '......#.##', '..#....#.#', '##.#.##.#.', '##....###.',
+        '#######.#.'])
+
+    (Pdb) placed_tiles[(-5, -7)]
+    Tile(id=2393, borders=('.####.#.#.', '.....#.##.', '.#..###.#.', '...##.#.#.'),
+        data=['.####.#.#.', '.#..##....', '.##..#.#..', '#....#....', '#...##.##.',
+        '.#...#...#', '#..#......', '....#.##.#', '#....##..#', '.#..###.#.'])
+
+    (Pdb) print_tile_data(placed_tiles[(-5, -6)])
+    Tile 1093:
+
+    #######.#.
+    ....#..#..
+    ...##.##..
+    ###.......
+    .......#..
+    .#...##..#
+    ......##.#
+    .#....##..
+    #.....#.##
+    ..#.#..###
+
+    (Pdb) print_tile_data(placed_tiles[(-5, -7)])
+    Tile 2393:
+
+    .####.#.#.
+    .#..##....
+    .##..#.#..
+    #....#....
+    #...##.##.
+    .#...#...#
+    #..#......
+    ....#.##.#
+    #....##..#
+    .#..###.#.
+
+    (Pdb) print_tile_data(tile)
+    Tile 2957:
+
+    #.###.#..#
+    #......#.#
+    #.....#..#
+    #...#..###
+    #......#..
+    ......#.##
+    ..#....#.#
+    ##.#.##.#.
+    ##....###.
+    #######.#.
+
+tile 1093's north border looks like
+    #######.#.
+
+tile 2957's left border looks like
+    #
+    #
+    #
+    #
+    #
+    .
+    .
+    #
+    #
+    #
+
+those shouldn't match. why did they match?
+
+TODO current conundrum is why, given the tiles displayed above, we're generating this match:
+    Match(tile_1_id=1093, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=3)
+
+honestly the tiles placed at (-5, -7) and (-5, -6) don't appear to me to have matching borders either
+    TODO investigate!!

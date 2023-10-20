@@ -152,6 +152,9 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
         else:
             position = (placed_tile_x - 1, placed_tile_y)
 
+        if position in placed_tiles:
+            breakpoint()
+
         assert position not in placed_tiles
         placed_tiles[position] = tile
 
