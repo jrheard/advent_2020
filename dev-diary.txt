@@ -729,5 +729,17 @@ lol just 0
 
     0: 8 11
 
-TODO does that help? i feel like it should help
-***
+does that help? i feel like it should help
+
+yeah ok i'm implementing fns for 8 and 11
+
+implementation was fine but my version is too strict
+prob a bug somewhere
+retooling my impl to work on their sample data
+
+    31: {'bbbaa', 'abbaa', 'abaaa', 'abaab', 'baaba', 'baaab', 'abbba', 'ababb', 'babab', 'aabaa', 'abbab', 'aabba', 'babba', 'aabab', 'babaa', 'bbaba'}
+    42: {'abbbb', 'aaaab', 'aaabb', 'ababa', 'bbbba', 'aaaba', 'bbaab', 'bbbab', 'aaaaa', 'baaaa', 'bbbbb', 'bbaaa', 'babbb', 'baabb', 'bbabb', 'aabbb'}
+
+ok mine works on their sample data now
+but still doesn't give the right answer for my input
+gives 386, which they say is too high and "curiously, is the right answer for someone else" lol
