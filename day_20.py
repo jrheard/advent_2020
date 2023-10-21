@@ -100,7 +100,7 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
 
     # The orientations of the .data and .borders of tiles in `unplaced_tiles` are arbitrary
     # with respect to all other tiles.
-    unplaced_tiles = [tile for tile in tiles if tile != first_tile]
+    unplaced_tiles = tiles[1:]
 
     while unplaced_tiles:
         print(len(placed_tiles), len(unplaced_tiles))
