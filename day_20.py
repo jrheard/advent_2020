@@ -141,6 +141,9 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
 
         relevant_match = relevant_matches[0]
 
+        if relevant_match.when_tile_2_is_flipped:
+            tile = flip_tile(tile)
+
         for _ in range(relevant_match.when_tile_2_is_rotated_num_times):
             tile = rotate_tile_right(tile)
 
@@ -163,6 +166,7 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             breakpoint()
         assert position not in placed_tiles
         print(f"placing {tile.id=} at {position=}")
+        print_tile_data(tile)
         placed_tiles[position] = tile
 
     return placed_tiles
