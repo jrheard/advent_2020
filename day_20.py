@@ -26,6 +26,7 @@ def print_tile_data(tile: Tile) -> None:
 
 
 def rotate_tile_right(tile: Tile) -> Tile:
+    # print(f"rotating {tile.id} to the right")
     rotated_data = ["" for _ in tile.data]
 
     for line in tile.data:
@@ -39,8 +40,8 @@ def borders_from_data(data: list[str]) -> tuple[str, str, str, str]:
     return (
         data[0],
         "".join(line[-1] for line in data),
-        data[-1],
-        "".join(line[0] for line in data),
+        data[-1][::-1],
+        "".join(line[0] for line in data)[::-1],
     )
 
 
@@ -65,10 +66,7 @@ def find_matches(tiles: list[Tile]) -> list[Match]:
         for other_tile in other_tiles:
             for i, tile_border in enumerate(tile.borders):
                 for j, other_tile_border in enumerate(other_tile.borders):
-                    if (
-                        tile_border == other_tile_border
-                        or tile_border == other_tile_border[::-1]
-                    ):
+                    if tile_border == other_tile_border:
                         result.append(Match(tile.id, i, other_tile.id, j))
 
     return result
@@ -184,7 +182,7 @@ def part_2() -> int:
 def test_matching_handles_directionality_correctly() -> None:
     tile_1 = Tile(
         id=2957,
-        borders=("###..#####", "#.###.#..#", "...##.####", "#######.#."),
+        borders=("###..#####", "#.###.#..#", "####.##...", ".#.#######"),
         data=[
             "###..#####",
             "###.......",
@@ -200,7 +198,7 @@ def test_matching_handles_directionality_correctly() -> None:
     )
     tile_2 = Tile(
         id=1093,
-        borders=("#######.#.", ".....##.##", "..#.#..###", "#..#....#."),
+        borders=("#######.#.", ".....##.##", "###..#.#..", ".#....#..#"),
         data=[
             "#######.#.",
             "....#..#..",
@@ -216,8 +214,6 @@ def test_matching_handles_directionality_correctly() -> None:
     )
     matches = find_matches([tile_1, tile_2])
     assert matches == []
-    breakpoint()
-    pass
 
 
 if __name__ == "__main__":

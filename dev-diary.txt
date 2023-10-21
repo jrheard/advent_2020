@@ -1571,7 +1571,64 @@ i think i do!
 
 kinda want to write a test case for this
 
-(Pdb) tile
-Tile(id=2957, borders=('###..#####', '#.###.#..#', '...##.####', '#######.#.'), data=['###..#####', '###.......', '#..#.....#', '#.#......#', '#.....#..#', '#.#.......', '###.#..#.#', '.#.#.##.#.', '###.#.#...', '...##.####'])
-(Pdb) [other_tile for other_tile in placed_tiles.values() if other_tile.id == 1093][0]
-Tile(id=1093, borders=('#######.#.', '.....##.##', '..#.#..###', '#..#....#.'), data=['#######.#.', '....#..#..', '...##.##..', '###.......', '.......#..', '.#...##..#', '......##.#', '.#....##..', '#.....#.##', '..#.#..###'])
+    (Pdb) tile
+    Tile(id=2957, borders=('###..#####', '#.###.#..#', '...##.####', '#######.#.'), data=['###..#####', '###.......', '#..#.....#', '#.#......#', '#.....#..#', '#.#.......', '###.#..#.#', '.#.#.##.#.', '###.#.#...', '...##.####'])
+    (Pdb) [other_tile for other_tile in placed_tiles.values() if other_tile.id == 1093][0]
+    Tile(id=1093, borders=('#######.#.', '.....##.##', '..#.#..###', '#..#....#.'), data=['#######.#.', '....#..#..', '...##.##..', '###.......', '.......#..', '.#...##..#', '......##.#', '.#....##..', '#.....#.##', '..#.#..###'])
+
+    i=3 tile_border='#######.#.' j=0 other_tile_border='#######.#.'
+    i=0 tile_border='#######.#.' j=3 other_tile_border='#######.#.'
+
+ok cool
+so what can we say about the desired behavior when finding matches related to tiles' borders and their indexes?
+like, what is the directionality of the strings in .borders?
+
+    def borders_from_data(data: list[str]) -> tuple[str, str, str, str]:
+        return (
+            data[0],
+            "".join(line[-1] for line in data),
+            data[-1],
+            "".join(line[0] for line in data),
+        )
+
+what if we try this?
+
+tile 1 border 0 matches tile 2 border 0 if they're in the same order
+tile 1 border 0 matches tile 2 border 1 if they're in the same order
+tile 1 border 0 matches tile 2 border 2 if they're reversed
+tile 1 border 0 matches tile 2 border 3 if they're reversed
+
+hrm
+how can we make that work for any border i for tile 1?
+
+what if we try rotating tile 2 a few times when looking for matches? what would that look like?
+
+hrm
+might be making this too complicated
+what if we just emit borders 2 and 3 in reversed order in the first place
+seems reasonable to me
+
+hmmmmmmmm
+no
+
+    🚂  python day_20.py
+    1 143
+    2 142
+    3 141
+    4 140
+    Traceback (most recent call last):
+    File "/Users/jrheard/Dropbox/dev/advent_2020/day_20.py", line 221, in <module>
+        print(part_1())
+            ^^^^^^^^
+    File "/Users/jrheard/Dropbox/dev/advent_2020/day_20.py", line 171, in part_1
+        placed_tiles = place_tiles(tiles)
+                    ^^^^^^^^^^^^^^^^^^
+    File "/Users/jrheard/Dropbox/dev/advent_2020/day_20.py", line 95, in place_tiles
+        tile, relevant_matches = next(
+                                ^^^^^
+    StopIteration
+
+that's not enough
+i think that maybe it's a start though (?)
+
+but yeah anyway i think find_matches() will still have to be more sophisticated about rotation/reversal
