@@ -2105,3 +2105,13 @@ my placement code rotated N times and THEN flips
 but my match code flips and THEN rotates
 i think both need to flip and THEN rotate
 let's try that
+
+ok this is looking better
+
+now i'd like to try to get better perf when matching
+i think i can have matching take placed, unplaced
+instead of one big list
+
+ok i did that and it's looking good so far
+
+what if i have find_matches be a generator instead of returning a list?

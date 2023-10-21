@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property, reduce
+from typing import Collection, Iterator, Sequence
 
 
 @dataclass
@@ -87,77 +88,53 @@ def try_to_match_tiles(tile_1: Tile, tile_2: Tile) -> Match | None:
         tile_2 = flip_tile(tile_2)
 
 
-def find_matches(tiles: list[Tile]) -> list[Match]:
-    # TODO should this take two lists, placed_tiles and unplaced_tiles?
-    # that way it would have knowledge of placed_tiles' rotation being authoritative
-    # (and of the fact that we only care about matches where tile_1 is a placed tile)
-    # TODO TODO
-    result = []
-    for tile in tiles:
-        other_tiles = [other_tile for other_tile in tiles if other_tile != tile]
-        for other_tile in other_tiles:
-            if match := try_to_match_tiles(tile, other_tile):
-                result.append(match)
-
-    return result
+def find_first_match(
+    placed_tiles: Collection[Tile], unplaced_tiles: Sequence[Tile]
+) -> Match | None:
+    for tile in placed_tiles:
+        for other_tile in unplaced_tiles:
+            if (match := try_to_match_tiles(tile, other_tile)) is not None:
+                return match
 
 
 def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
-    matches = find_matches(tiles)
-
-    first_corner = next(
-        tile
-        for tile in tiles
-        if len([match for match in matches if match.tile_1_id == tile.id]) == 2
-    )
+    first_tile = tiles[0]
 
     # The orientations of the .data and .borders of tiles in `placed_tiles` are authoritative.
-    placed_tiles: dict[tuple[int, int], Tile] = {(0, 0): first_corner}
+    placed_tiles: dict[tuple[int, int], Tile] = {(0, 0): first_tile}
 
     # The orientations of the .data and .borders of tiles in `unplaced_tiles` are arbitrary
     # with respect to all other tiles.
-    unplaced_tiles = [tile for tile in tiles if tile != first_corner]
+    unplaced_tiles = [tile for tile in tiles if tile != first_tile]
 
     while unplaced_tiles:
         print(len(placed_tiles), len(unplaced_tiles))
-        matches = find_matches(list(placed_tiles.values()) + unplaced_tiles)
-        placed_tile_ids = {tile.id for tile in placed_tiles.values()}
 
-        tile, relevant_matches = next(
-            (tile, relevant_matches)
-            for tile in unplaced_tiles
-            if (
-                relevant_matches := [
-                    match
-                    for match in matches
-                    if match.tile_2_id == tile.id and match.tile_1_id in placed_tile_ids
-                ]
-            )
-        )
+        match = find_first_match(placed_tiles.values(), unplaced_tiles)
+        assert match is not None
+        tile = next(tile for tile in unplaced_tiles if match.tile_2_id == tile.id)
 
         unplaced_tiles = [
             other_tile for other_tile in unplaced_tiles if other_tile != tile
         ]
 
-        relevant_match = relevant_matches[0]
-
-        if relevant_match.when_tile_2_is_flipped:
+        if match.when_tile_2_is_flipped:
             tile = flip_tile(tile)
 
-        for _ in range(relevant_match.when_tile_2_is_rotated_num_times):
+        for _ in range(match.when_tile_2_is_rotated_num_times):
             tile = rotate_tile_right(tile)
 
         # Now all we have to do is figure out this tile's placement position.
         placed_tile_x, placed_tile_y = next(
             position
             for position, placed_tile in placed_tiles.items()
-            if placed_tile.id == relevant_match.tile_1_id
+            if placed_tile.id == match.tile_1_id
         )
-        if relevant_match.tile_1_border_index == 0:
+        if match.tile_1_border_index == 0:
             position = (placed_tile_x, placed_tile_y - 1)
-        elif relevant_match.tile_1_border_index == 1:
+        elif match.tile_1_border_index == 1:
             position = (placed_tile_x + 1, placed_tile_y)
-        elif relevant_match.tile_1_border_index == 2:
+        elif match.tile_1_border_index == 2:
             position = (placed_tile_x, placed_tile_y + 1)
         else:
             position = (placed_tile_x - 1, placed_tile_y)
@@ -217,25 +194,15 @@ def test_matching_handles_directionality_correctly() -> None:
             "..#.#..###",
         ],
     )
-    matches = find_matches([tile_1, tile_2])
-    assert matches == [
-        Match(
-            tile_1_id=2957,
-            tile_1_border_index=3,
-            tile_2_id=1093,
-            tile_2_border_index=1,
-            when_tile_2_is_rotated_num_times=1,
-            when_tile_2_is_flipped=False,
-        ),
-        Match(
-            tile_1_id=1093,
-            tile_1_border_index=0,
-            tile_2_id=2957,
-            tile_2_border_index=2,
-            when_tile_2_is_rotated_num_times=3,
-            when_tile_2_is_flipped=False,
-        ),
-    ]
+    match = find_first_match([tile_1], [tile_2])
+    assert match == Match(
+        tile_1_id=2957,
+        tile_1_border_index=3,
+        tile_2_id=1093,
+        tile_2_border_index=1,
+        when_tile_2_is_rotated_num_times=1,
+        when_tile_2_is_flipped=False,
+    )
 
 
 def test_matching() -> None:
@@ -269,25 +236,15 @@ def test_matching() -> None:
             "..#.###...",
         ],
     )
-    matches = find_matches([tile_1, tile_2])
-    assert matches == [
-        Match(
-            tile_1_id=2311,
-            tile_1_border_index=1,
-            tile_2_id=3079,
-            tile_2_border_index=3,
-            when_tile_2_is_rotated_num_times=2,
-            when_tile_2_is_flipped=True,
-        ),
-        Match(
-            tile_1_id=3079,
-            tile_1_border_index=3,
-            tile_2_id=2311,
-            tile_2_border_index=1,
-            when_tile_2_is_rotated_num_times=2,
-            when_tile_2_is_flipped=True,
-        ),
-    ]
+    match = find_first_match([tile_1], [tile_2])
+    assert match == Match(
+        tile_1_id=2311,
+        tile_1_border_index=1,
+        tile_2_id=3079,
+        tile_2_border_index=3,
+        when_tile_2_is_rotated_num_times=2,
+        when_tile_2_is_flipped=True,
+    )
 
 
 if __name__ == "__main__":
