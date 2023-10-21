@@ -69,7 +69,7 @@ def find_matches(tiles: list[Tile]) -> list[Match]:
                     if (
                         tile_border
                         # TODO remove ::1s from this check and from .borders definition?
-                        == other_tile.borders[tile_2_border_index_to_check]
+                        == other_tile.borders[tile_2_border_index_to_check][::-1]
                     ):
                         result.append(
                             Match(
@@ -197,74 +197,22 @@ def test_matching_handles_directionality_correctly() -> None:
         ],
     )
     matches = find_matches([tile_1, tile_2])
-    breakpoint()
-    assert matches == []
-
-
-def test_matching_can_find_next_tile_to_place() -> None:
-    placed_tiles = [
-        Tile(
-            id=3079,
-            data=[
-                "#.#.#####.",
-                ".#..######",
-                "..#.......",
-                "######....",
-                "####.#..#.",
-                ".#...#.##.",
-                "#.#####.##",
-                "..#.###...",
-                "..#.......",
-                "..#.###...",
-            ],
+    assert matches == [
+        Match(
+            tile_1_id=2957,
+            tile_1_border_index=3,
+            tile_2_id=1093,
+            tile_2_border_index=1,
+            when_tile_2_is_rotated_num_times=1,
         ),
-        Tile(
-            id=2311,
-            data=[
-                "..##.#..#.",
-                "##..#.....",
-                "#...##..#.",
-                "####.#...#",
-                "##.##.###.",
-                "##...#.###",
-                ".#.#.#..##",
-                "..#....#..",
-                "###...#.#.",
-                "..###..###",
-            ],
-        ),
-        Tile(
-            id=2473,
-            data=[
-                "...###.#..",
-                "#....##.##",
-                "#..###.#..",
-                "###..#.###",
-                "##.######.",
-                "...#.#.#.#",
-                ".###.###.#",
-                "..##.###.#",
-                "...######.",
-                "####...##.",
-            ],
+        Match(
+            tile_1_id=1093,
+            tile_1_border_index=0,
+            tile_2_id=2957,
+            tile_2_border_index=2,
+            when_tile_2_is_rotated_num_times=3,
         ),
     ]
-
-    tile_to_place = Tile(
-        id=1171,
-        data=[
-            "####...##.",
-            "#..##.#..#",
-            "##.#..#.#.",
-            ".###.####.",
-            "..###.####",
-            ".##....##.",
-            ".#...####.",
-            "#.##.####.",
-            "####..#...",
-            ".....##...",
-        ],
-    )
 
 
 if __name__ == "__main__":

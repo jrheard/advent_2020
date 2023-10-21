@@ -1777,3 +1777,39 @@ but now i have a test failing
     (Pdb) matches
     [Match(tile_1_id=2957, tile_1_border_index=3, tile_2_id=1093, tile_2_border_index=1, when_tile_2_is_rotated_num_times=1),
     Match(tile_1_id=1093, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=2, when_tile_2_is_rotated_num_times=3)]
+
+    (Pdb) print_tile_data(rotate_tile_right(tile_2))
+    Tile 1093:
+
+    .#....#..#
+    ..#.#.#..#
+    #.....#..#
+    .......#.#
+    #......###
+    ....#....#
+    .####..#.#
+    #.##.#.##.
+    ##.......#
+    ##.##.....
+
+    (Pdb) print_tile_data(rotate_tile_right(rotate_tile_right(rotate_tile_right(tile_1))))
+    Tile 2957:
+
+    #.###.#..#
+    #......#.#
+    #.....#..#
+    #...#..###
+    #......#..
+    ......#.##
+    ..#....#.#
+    ##.#.##.#.
+    ##....###.
+    #######.#.
+
+1093's border 0 looks like this
+    #######.#.
+2957-rotated-three-times' border 2 looks like this
+    #######.#.
+
+hm actually i think those matches are _right_? huh!
+neat!
