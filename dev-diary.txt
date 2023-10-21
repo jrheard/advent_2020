@@ -1628,7 +1628,113 @@ no
                                 ^^^^^
     StopIteration
 
-that's not enough
-i think that maybe it's a start though (?)
+that's not enough? why not?
 
-but yeah anyway i think find_matches() will still have to be more sophisticated about rotation/reversal
+let's try it on the sample data again
+
+    (Pdb) tile
+    Tile(id=2473, borders=('...###.#..', '.#.#.###..', '.##...####', '#....####.'), data=['...###.#..', '#....##.##', '#..###.#..', '###..#.###', '##.######.', '...#.#.#.#', '.###.###.#', '..##.###.#', '...######.', '####...##.'])
+    (Pdb) print_tile_data(tile)
+    Tile 2473:
+
+    ...###.#..
+    #....##.##
+    #..###.#..
+    ###..#.###
+    ##.######.
+    ...#.#.#.#
+    .###.###.#
+    ..##.###.#
+    ...######.
+    ####...##.
+
+now, we know that 2473 is supposed to go in the middle right
+hm
+is it possible that actually find_matches is behaving correctly here? after all, what's the guarantee that each new tile we examine
+will already have a matching placed tile?
+
+    (Pdb) [tile.id for tile in placed_tiles.values()]
+    [3079, 2311, 2473]
+
+and the final placement is supposed to be
+
+    1951    2311    3079
+    2729    1427    2473
+    2971    1489    1171
+
+wait, why is 2473 appearing in placed_tiles.values()?
+
+oh right
+2473 is the last one we placed
+
+right so actually the situation is that 3079, 2311, and 2473 are placed
+and we're trying to find the next tile to place
+
+right now we're doing
+
+            tile, relevant_matches = next(
+                (tile, relevant_matches)
+                for tile in unplaced_tiles
+                if (
+                    relevant_matches := [
+                        match
+                        for match in matches
+                        if match.tile_2_id == tile.id
+                        and match.tile_1_id
+                        in {tile.id for tile in placed_tiles.values()}
+                    ]
+                )
+            )
+
+what's wrong with that?
+maybe we need another test case
+that tries to ensure that 1171 is placed after these other three have been placed
+
+2473 looks like
+
+    Tile(
+        id=2473,
+        data=[
+            "...###.#..",
+            "#....##.##",
+            "#..###.#..",
+            "###..#.###",
+            "##.######.",
+            "...#.#.#.#",
+            ".###.###.#",
+            "..##.###.#",
+            "...######.",
+            "####...##.",
+        ],
+    ),
+
+1171 looks like
+
+    tile_to_place = Tile(
+        id=1171,
+        data=[
+            "####...##.",
+            "#..##.#..#",
+            "##.#..#.#.",
+            ".###.####.",
+            "..###.####",
+            ".##....##.",
+            ".#...####.",
+            "#.##.####.",
+            "####..#...",
+            ".....##...",
+        ],
+
+hm
+should find_matches() also emit a per-match num_rotations_to_right_needed attribute?
+
+like, what is a match, anyway?
+when two tiles are placed correctly, what indexes are possible matches?
+
+0 and 2
+1 and 3
+2 and 0
+3 and 1
+
+when 0 and 2 match, they're reversed
+when 1 and 3 match, they're reversed
