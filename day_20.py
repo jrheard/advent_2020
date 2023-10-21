@@ -26,7 +26,6 @@ def print_tile_data(tile: Tile) -> None:
 
 
 def rotate_tile_right(tile: Tile) -> Tile:
-    # print(f"rotating {tile.id} to the right")
     rotated_data = ["" for _ in tile.data]
 
     for line in tile.data:
@@ -137,6 +136,15 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             tile = rotate_tile_right(tile)
             num_times_rotated_right += 1
 
+        assert (
+            tile.borders[correctly_rotated_tile_2_border_index]
+            == [
+                placed_tile
+                for placed_tile in placed_tiles.values()
+                if placed_tile.id == relevant_match.tile_1_id
+            ][0].borders[relevant_match.tile_1_border_index]
+        )
+
         # Now all we have to do is figure out this tile's placement position.
         placed_tile_x, placed_tile_y = next(
             position
@@ -152,9 +160,6 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
         else:
             position = (placed_tile_x - 1, placed_tile_y)
 
-        if position in placed_tiles:
-            breakpoint()
-
         assert position not in placed_tiles
         placed_tiles[position] = tile
 
@@ -163,7 +168,10 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
 
 def part_1() -> int:
     tiles = load_input()
+    test_matching_handles_directionality_correctly()
+
     placed_tiles = place_tiles(tiles)
+
     print(placed_tiles)
     # return reduce(lambda x, y: x * y, [tile.id for tile in find_corners(tiles)])
     return -1
@@ -171,6 +179,45 @@ def part_1() -> int:
 
 def part_2() -> int:
     return -1
+
+
+def test_matching_handles_directionality_correctly() -> None:
+    tile_1 = Tile(
+        id=2957,
+        borders=("###..#####", "#.###.#..#", "...##.####", "#######.#."),
+        data=[
+            "###..#####",
+            "###.......",
+            "#..#.....#",
+            "#.#......#",
+            "#.....#..#",
+            "#.#.......",
+            "###.#..#.#",
+            ".#.#.##.#.",
+            "###.#.#...",
+            "...##.####",
+        ],
+    )
+    tile_2 = Tile(
+        id=1093,
+        borders=("#######.#.", ".....##.##", "..#.#..###", "#..#....#."),
+        data=[
+            "#######.#.",
+            "....#..#..",
+            "...##.##..",
+            "###.......",
+            ".......#..",
+            ".#...##..#",
+            "......##.#",
+            ".#....##..",
+            "#.....#.##",
+            "..#.#..###",
+        ],
+    )
+    matches = find_matches([tile_1, tile_2])
+    assert matches == []
+    breakpoint()
+    pass
 
 
 if __name__ == "__main__":

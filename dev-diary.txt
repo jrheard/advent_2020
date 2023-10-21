@@ -1363,3 +1363,215 @@ TODO current conundrum is why, given the tiles displayed above, we're generating
 
 honestly the tiles placed at (-5, -7) and (-5, -6) don't appear to me to have matching borders either
     TODO investigate!!
+
+
+    x = Tile(
+        id=1093,
+        borders=("#######.#.", ".....##.##", "..#.#..###", "#..#....#."),
+        data=[
+            "#######.#.",
+            "....#..#..",
+            "...##.##..",
+            "###.......",
+            ".......#..",
+            ".#...##..#",
+            "......##.#",
+            ".#....##..",
+            "#.....#.##",
+            "..#.#..###",
+        ],
+    )
+
+    y = Tile(
+        id=2957,
+        borders=("#.###.#..#", "####.##...", "#######.#.", "#####..###"),
+        data=[
+            "#.###.#..#",
+            "#......#.#",
+            "#.....#..#",
+            "#...#..###",
+            "#......#..",
+            "......#.##",
+            "..#....#.#",
+            "##.#.##.#.",
+            "##....###.",
+            "#######.#.",
+        ],
+    )
+
+    z = Tile(
+        id=2393,
+        borders=(".####.#.#.", ".....#.##.", ".#..###.#.", "...##.#.#."),
+        data=[
+            ".####.#.#.",
+            ".#..##....",
+            ".##..#.#..",
+            "#....#....",
+            "#...##.##.",
+            ".#...#...#",
+            "#..#......",
+            "....#.##.#",
+            "#....##..#",
+            ".#..###.#.",
+        ],
+    )
+
+    foo = find_matches([x, y, z])
+
+    (Pdb) foo
+    [Match(tile_1_id=1093, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=2),
+        Match(tile_1_id=2957, tile_1_border_index=2, tile_2_id=1093, tile_2_border_index=0)]
+
+that seems fine when i check the matches on these guys in isolation
+so let's run the overall program again and see if its behavior in the moment is different
+
+in particular the problem is this
+
+
+    (Pdb) print_tile_data(placed_tiles[(-5, -6)])
+    Tile 1093:
+
+    #######.#.
+    ....#..#..
+    ...##.##..
+    ###.......
+    .......#..
+    .#...##..#
+    ......##.#
+    .#....##..
+    #.....#.##
+    ..#.#..###
+
+    (Pdb) print_tile_data(placed_tiles[(-5, -7)])
+    Tile 2393:
+
+    .####.#.#.
+    .#..##....
+    .##..#.#..
+    #....#....
+    #...##.##.
+    .#...#...#
+    #..#......
+    ....#.##.#
+    #....##..#
+    .#..###.#.
+
+ok so 1093 gets placed first
+
+    (Pdb) tile
+    Tile(id=1093, borders=('.....##.##', '###..#.#..', '#..#....#.', '.#.#######'), data=['.....##.##', '#.......##', '.##.#.##.#', '#.#..####.', '#....#....', '###......#', '#.#.......', '#..#.....#', '#..#.#.#..', '#..#....#.'])
+    (Pdb) relevant_matches[0]
+    Match(tile_1_id=2399, tile_1_border_index=3, tile_2_id=1093, tile_2_border_index=0)
+
+    (Pdb) print_tile_data(tile)
+    Tile 1093:
+
+    .....##.##
+    #.......##
+    .##.#.##.#
+    #.#..####.
+    #....#....
+    ###......#
+    #.#.......
+    #..#.....#
+    #..#.#.#..
+    #..#....#.
+
+    (Pdb) print_tile_data([tile for tile in placed_tiles.values() if tile.id == 2399][0])
+    Tile 2399:
+
+    ..#.####.#
+    ......#..#
+    .......#..
+    ........#.
+    .......#..
+    #.##...#.#
+    #..#......
+    .........#
+    #........#
+    ##.#..##..
+
+    (Pdb) [k for k, tile in placed_tiles.items() if tile.id == 2399][0]
+    (-4, -6)
+
+so it'll have to be rotated
+
+this is all looking fine so far
+tile 1093 is next up to be placed, its top border matches against the left border of the tile in (-4, -6),
+so we're going to place it in (-5, -6)
+
+let's keep watching it
+
+    (Pdb) correctly_rotated_tile_2_border_index
+    1
+
+yeah, we want 1099's top border to become its east border
+
+    (Pdb) num_times_rotated_right
+    1
+    (Pdb) print_tile_data(tile)
+    Tile 1093:
+
+    #######.#.
+    ....#..#..
+    ...##.##..
+    ###.......
+    .......#..
+    .#...##..#
+    ......##.#
+    .#....##..
+    #.....#.##
+    ..#.#..###
+
+looks good
+
+ok, now we run until we see 2957
+
+    (Pdb) print_tile_data(tile)
+    Tile 2957:
+
+    ###..#####
+    ###.......
+    #..#.....#
+    #.#......#
+    #.....#..#
+    #.#.......
+    ###.#..#.#
+    .#.#.##.#.
+    ###.#.#...
+    ...##.####
+
+    (Pdb) relevant_matches
+    [Match(tile_1_id=1093, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=3),
+    Match(tile_1_id=1583, tile_1_border_index=3, tile_2_id=2957, tile_2_border_index=2),
+    Match(tile_1_id=1847, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=1)]
+
+tile 1093's north border looks like this
+    #######.#.
+
+tile 2957's left border looks like this
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    .
+    #
+    .
+
+if tile 2957's left border were rotated to the right one time, it would look like this
+    .#.#######
+and would NOT look like this
+    #######.#.
+
+TODO do i have to be _conditional_ about when i match on reversed borders?
+i think i do!
+
+kinda want to write a test case for this
+
+(Pdb) tile
+Tile(id=2957, borders=('###..#####', '#.###.#..#', '...##.####', '#######.#.'), data=['###..#####', '###.......', '#..#.....#', '#.#......#', '#.....#..#', '#.#.......', '###.#..#.#', '.#.#.##.#.', '###.#.#...', '...##.####'])
+(Pdb) [other_tile for other_tile in placed_tiles.values() if other_tile.id == 1093][0]
+Tile(id=1093, borders=('#######.#.', '.....##.##', '..#.#..###', '#..#....#.'), data=['#######.#.', '....#..#..', '...##.##..', '###.......', '.......#..', '.#...##..#', '......##.#', '.#....##..', '#.....#.##', '..#.#..###'])
