@@ -1887,3 +1887,75 @@ now my test generates these matches
 
     Match(tile_1_id=3079, tile_1_border_index=3, tile_2_id=2311, tile_2_border_index=1,
     when_tile_2_is_rotated_num_times=2, when_tile_2_is_flipped=True)]
+
+ugh after all that i'm still getting crashes, and now i'm getting bad perf too
+
+well let's take a look at the problem
+
+    (Pdb) tuple(placed_tiles.items())[2]
+    ((-2, 0), Tile(id=3517, data=['###..##.#.', '...###...#', '..#......#',
+    '.#.#...#.#', '....#.##.#', '#...#..#..', '...##....#', '#.....###.',
+    '.#..##...#', '........##']))
+
+    (Pdb) relevant_match
+    Match(tile_1_id=3517, tile_1_border_index=1, tile_2_id=1187, tile_2_border_index=3, when_tile_2_is_rotated_num_times=1,
+    when_tile_2_is_flipped=False)
+
+    Tile 1187:
+
+    ....#.#.##
+    ##....#...
+    #......##.
+    #......##.
+    #..#....##
+    .#...#...#
+    #...#...##
+    ...#..##..
+    #.........
+    #.##.#....
+
+    Tile 3517:
+
+    ###..##.#.
+    ...###...#
+    ..#......#
+    .#.#...#.#
+    ....#.##.#
+    #...#..#..
+    ...##....#
+    #.....###.
+    .#..##...#
+    ........##
+
+that's weird, it really does look like 1187 should go to the right of 3517
+what's there already?
+
+    (Pdb) print_tile_data(placed_tiles[(-1, 0)])
+    Tile 2003:
+
+    ##....#.##
+    ..........
+    .....###..
+    ......#..#
+    .#.......#
+    #........#
+    .....##..#
+    ##...#...#
+    .#......#.
+    ..#####.#.
+
+why's that there?
+
+because it fits to the left of 2003
+ugh man i dunno
+
+ok i peeked at the other guy's day 20 writeup just to see if he had as much trouble as me
+and he said this:
+
+    Day 20 was almost the end of my 2020 Advent of Code. I managed to solve part one
+    in 15 minutes, but then part two got me for days. I finally solved it, but I
+    can’t promise pretty code.
+
+so that's a relief
+still though i think i'm gonna put this one down for now, read a book, and come back to it in a few days
+and probably start over from scratch

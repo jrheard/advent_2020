@@ -88,6 +88,10 @@ def try_to_match_tiles(tile_1: Tile, tile_2: Tile) -> Match | None:
 
 
 def find_matches(tiles: list[Tile]) -> list[Match]:
+    # TODO should this take two lists, placed_tiles and unplaced_tiles?
+    # that way it would have knowledge of placed_tiles' rotation being authoritative
+    # (and of the fact that we only care about matches where tile_1 is a placed tile)
+    # TODO TODO
     result = []
     for tile in tiles:
         other_tiles = [other_tile for other_tile in tiles if other_tile != tile]
@@ -155,6 +159,8 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
         else:
             position = (placed_tile_x - 1, placed_tile_y)
 
+        if position in placed_tiles:
+            breakpoint()
         assert position not in placed_tiles
         print(f"placing {tile.id=} at {position=}")
         placed_tiles[position] = tile
