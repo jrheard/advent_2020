@@ -1738,3 +1738,42 @@ when two tiles are placed correctly, what indexes are possible matches?
 
 when 0 and 2 match, they're reversed
 when 1 and 3 match, they're reversed
+
+ok i made some progress on find_matches
+but now i have a test failing
+
+    tile_1 = Tile(
+        id=2957,
+        data=[
+            "###..#####",
+            "###.......",
+            "#..#.....#",
+            "#.#......#",
+            "#.....#..#",
+            "#.#.......",
+            "###.#..#.#",
+            ".#.#.##.#.",
+            "###.#.#...",
+            "...##.####",
+        ],
+    )
+    tile_2 = Tile(
+        id=1093,
+        data=[
+            "#######.#.",
+            "....#..#..",
+            "...##.##..",
+            "###.......",
+            ".......#..",
+            ".#...##..#",
+            "......##.#",
+            ".#....##..",
+            "#.....#.##",
+            "..#.#..###",
+        ],
+    )
+    matches = find_matches([tile_1, tile_2])
+
+    (Pdb) matches
+    [Match(tile_1_id=2957, tile_1_border_index=3, tile_2_id=1093, tile_2_border_index=1, when_tile_2_is_rotated_num_times=1),
+    Match(tile_1_id=1093, tile_1_border_index=0, tile_2_id=2957, tile_2_border_index=2, when_tile_2_is_rotated_num_times=3)]

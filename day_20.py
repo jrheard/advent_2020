@@ -44,15 +44,6 @@ def rotate_tile_right(tile: Tile) -> Tile:
     return Tile(id=tile.id, data=rotated_data)
 
 
-def borders_from_data(data: list[str]) -> tuple[str, str, str, str]:
-    return (
-        data[0],
-        "".join(line[-1] for line in data),
-        data[-1][::-1],
-        "".join(line[0] for line in data)[::-1],
-    )
-
-
 def load_input() -> list[Tile]:
     with open("inputs/day_20.txt") as f:
         lines = [line.strip() for line in f]
@@ -78,7 +69,7 @@ def find_matches(tiles: list[Tile]) -> list[Match]:
                     if (
                         tile_border
                         # TODO remove ::1s from this check and from .borders definition?
-                        == other_tile.borders[tile_2_border_index_to_check][::-1]
+                        == other_tile.borders[tile_2_border_index_to_check]
                     ):
                         result.append(
                             Match(
