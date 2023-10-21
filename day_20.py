@@ -139,11 +139,8 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
         else:
             position = (placed_tile_x - 1, placed_tile_y)
 
-        if position in placed_tiles:
-            breakpoint()
         assert position not in placed_tiles
         print(f"placing {tile.id=} at {position=}")
-        print_tile_data(tile)
         placed_tiles[position] = tile
 
     return placed_tiles
@@ -154,9 +151,16 @@ def part_1() -> int:
 
     placed_tiles = place_tiles(tiles)
 
-    print(placed_tiles)
-    # return reduce(lambda x, y: x * y, [tile.id for tile in find_corners(tiles)])
-    return -1
+    min_x = min(x for (x, _) in placed_tiles.keys())
+    max_x = max(x for (x, _) in placed_tiles.keys())
+    min_y = min(y for (_, y) in placed_tiles.keys())
+    max_y = max(y for (_, y) in placed_tiles.keys())
+    return (
+        placed_tiles[(min_x, min_y)].id
+        * placed_tiles[(min_x, max_y)].id
+        * placed_tiles[(max_x, max_y)].id
+        * placed_tiles[(max_x, min_y)].id
+    )
 
 
 def part_2() -> int:
