@@ -1878,3 +1878,12 @@ that definitely explains a lot
 
 bit disappointed in myself for not noticing that earlier
 but glad we got there in the end
+
+ok i implemented flipping
+now my test generates these matches
+
+    [Match(tile_1_id=2311, tile_1_border_index=1, tile_2_id=3079, tile_2_border_index=3,
+    when_tile_2_is_rotated_num_times=2, when_tile_2_is_flipped=True)
+
+    Match(tile_1_id=3079, tile_1_border_index=3, tile_2_id=2311, tile_2_border_index=1,
+    when_tile_2_is_rotated_num_times=2, when_tile_2_is_flipped=True)]

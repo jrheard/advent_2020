@@ -116,7 +116,6 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
 
     while unplaced_tiles:
         print(len(placed_tiles), len(unplaced_tiles))
-        breakpoint()
         matches = find_matches(list(placed_tiles.values()) + unplaced_tiles)
         placed_tile_ids = {tile.id for tile in placed_tiles.values()}
 
@@ -216,6 +215,7 @@ def test_matching_handles_directionality_correctly() -> None:
             tile_2_id=1093,
             tile_2_border_index=1,
             when_tile_2_is_rotated_num_times=1,
+            when_tile_2_is_flipped=False,
         ),
         Match(
             tile_1_id=1093,
@@ -223,6 +223,7 @@ def test_matching_handles_directionality_correctly() -> None:
             tile_2_id=2957,
             tile_2_border_index=2,
             when_tile_2_is_rotated_num_times=3,
+            when_tile_2_is_flipped=False,
         ),
     ]
 
@@ -259,8 +260,24 @@ def test_matching() -> None:
         ],
     )
     matches = find_matches([tile_1, tile_2])
-    breakpoint()
-    pass
+    assert matches == [
+        Match(
+            tile_1_id=2311,
+            tile_1_border_index=1,
+            tile_2_id=3079,
+            tile_2_border_index=3,
+            when_tile_2_is_rotated_num_times=2,
+            when_tile_2_is_flipped=True,
+        ),
+        Match(
+            tile_1_id=3079,
+            tile_1_border_index=3,
+            tile_2_id=2311,
+            tile_2_border_index=1,
+            when_tile_2_is_rotated_num_times=2,
+            when_tile_2_is_flipped=True,
+        ),
+    ]
 
 
 if __name__ == "__main__":
