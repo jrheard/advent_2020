@@ -13,8 +13,8 @@ class Tile:
         return (
             self.data[0],
             "".join(line[-1] for line in self.data),
-            self.data[-1][::-1],
-            "".join(line[0] for line in self.data)[::-1],
+            self.data[-1],
+            "".join(line[0] for line in self.data),
         )
 
 
@@ -36,7 +36,6 @@ def print_tile_data(tile: Tile) -> None:
 
 
 def rotate_tile_right(tile: Tile) -> Tile:
-    # print(f"rotating {tile.id} to the right")
     rotated_data = ["" for _ in tile.data]
 
     for line in tile.data:
@@ -69,11 +68,7 @@ def try_to_match_tiles(tile_1: Tile, tile_2: Tile) -> Match | None:
         for num_times_tile_2_rotated in range(4):
             for i, tile_border in enumerate(tile_1.borders):
                 tile_2_border_index_to_check = (i + 2) % 4
-                if (
-                    tile_border
-                    # TODO remove ::1s from this check and from .borders definition?
-                    == tile_2.borders[tile_2_border_index_to_check][::-1]
-                ):
+                if tile_border == tile_2.borders[tile_2_border_index_to_check]:
                     return Match(
                         tile_1.id,
                         i,
@@ -118,6 +113,9 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             other_tile for other_tile in unplaced_tiles if other_tile != tile
         ]
 
+        # Orient `tile` to the correct position as per the instructions in `match`.
+        # Note that it's important to first flip and _then_ rotate,
+        # because that's the order that `try_to_match_tiles()` does it in.
         if match.when_tile_2_is_flipped:
             tile = flip_tile(tile)
 
@@ -130,6 +128,7 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             for position, placed_tile in placed_tiles.items()
             if placed_tile.id == match.tile_1_id
         )
+
         if match.tile_1_border_index == 0:
             position = (placed_tile_x, placed_tile_y - 1)
         elif match.tile_1_border_index == 1:
