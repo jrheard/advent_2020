@@ -35,18 +35,26 @@ def print_tile_data(tile: Tile) -> None:
         print(line)
 
 
-def rotate_tile_right(tile: Tile) -> Tile:
-    rotated_data = ["" for _ in tile.data]
+def rotate_image_right(image: list[str]) -> list[str]:
+    rotated_image = ["" for _ in image]
 
-    for line in tile.data:
+    for line in image:
         for i, char in enumerate(line):
-            rotated_data[i] = char + rotated_data[i]
+            rotated_image[i] = char + rotated_image[i]
 
-    return Tile(id=tile.id, data=rotated_data)
+    return rotated_image
+
+
+def flip_image(image: list[str]) -> list[str]:
+    return [line[::-1] for line in image]
+
+
+def rotate_tile_right(tile: Tile) -> Tile:
+    return Tile(id=tile.id, data=rotate_image_right(tile.data))
 
 
 def flip_tile(tile: Tile) -> Tile:
-    return Tile(id=tile.id, data=[line[::-1] for line in tile.data])
+    return Tile(id=tile.id, data=flip_image(tile.data))
 
 
 def load_input() -> list[Tile]:
@@ -145,15 +153,21 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
     return placed_tiles
 
 
+def get_bounds(placed_tiles: dict[tuple[int, int], Tile]) -> tuple[int, int, int, int]:
+    return (
+        min(x for (x, _) in placed_tiles.keys()),
+        max(x for (x, _) in placed_tiles.keys()),
+        min(y for (_, y) in placed_tiles.keys()),
+        max(y for (_, y) in placed_tiles.keys()),
+    )
+
+
 def part_1() -> int:
     tiles = load_input()
 
     placed_tiles = place_tiles(tiles)
+    min_x, max_x, min_y, max_y = get_bounds(placed_tiles)
 
-    min_x = min(x for (x, _) in placed_tiles.keys())
-    max_x = max(x for (x, _) in placed_tiles.keys())
-    min_y = min(y for (_, y) in placed_tiles.keys())
-    max_y = max(y for (_, y) in placed_tiles.keys())
     return (
         placed_tiles[(min_x, min_y)].id
         * placed_tiles[(min_x, max_y)].id
@@ -162,7 +176,61 @@ def part_1() -> int:
     )
 
 
+# Now, you're ready to search for sea monsters! Because your image is monochrome, a sea monster will look like this:
+#
+#                   #
+#   #    ##    ##    ###
+#  #  #  #  #  #  #
+SEA_MONSTER_COORDINATES = [
+    (18, 0),
+    (0, 1),
+    (5, 1),
+    (6, 1),
+    (11, 1),
+    (12, 1),
+    (17, 1),
+    (18, 1),
+    (19, 1),
+    (1, 2),
+    (4, 2),
+    (7, 2),
+    (10, 2),
+    (13, 2),
+    (16, 2),
+]
+
+
+def count_sea_monsters_in_image(image: list[str]) -> int:
+    result = 0
+    for y in range(len(image) - 2):
+        for x in range(len(image[0]) - 20):
+            if all(
+                image[y + yy][x + xx] == "#" for (xx, yy) in SEA_MONSTER_COORDINATES
+            ):
+                result += 1
+
+    return result
+
+
 def part_2() -> int:
+    tiles = load_input()
+
+    placed_tiles = place_tiles(tiles)
+    min_x, max_x, min_y, max_y = get_bounds(placed_tiles)
+
+    # "The borders of each tile are not part of the actual image; start by removing them."
+    image = []
+    for y in range(min_y, max_y + 1):
+        for yy in range(1, 9):
+            line = ""
+            for x in range(min_x, max_x + 1):
+                tile = placed_tiles[(x, y)]
+                line += tile.data[yy][1:9]
+
+            image.append(line)
+
+    breakpoint()
+
     return -1
 
 
@@ -250,8 +318,55 @@ def test_matching() -> None:
     )
 
 
+def test_counting() -> None:
+    image = """.#.#..#.##...#.##..#####
+###....#.#....#..#......
+##.##.###.#.#..######...
+###.#####...#.#####.#..#
+##.#....#.##.####...#.##
+...########.#....#####.#
+....#..#...##..#.#.###..
+.####...#..#.....#......
+#..#.##..#..###.#.##....
+#.####..#.####.#.#.###..
+###.#.#...#.######.#..##
+#.####....##..########.#
+##..##.#...#...#.#.#.#..
+...#..#..#.#.##..###.###
+.#.#....#.##.#...###.##.
+###.#...#..#.##.######..
+.#.#.###.##.##.#..#.##..
+.####.###.#...###.#..#.#
+..#.#..#..#.#.#.####.###
+#..####...#.#.#.###.###.
+#####..#####...###....##
+#.##..#..#...#..####...#
+.#.###..##..##..####.##.
+...###...##...#...#..###""".split(
+        "\n"
+    )
+    assert count_sea_monsters_in_image(image) == 0
+
+    image = rotate_image_right(image)
+    assert count_sea_monsters_in_image(image) == 0
+    image = rotate_image_right(image)
+    assert count_sea_monsters_in_image(image) == 0
+    image = rotate_image_right(image)
+    assert count_sea_monsters_in_image(image) == 0
+
+    image = flip_image(image)
+    assert count_sea_monsters_in_image(image) == 0
+    image = rotate_image_right(image)
+    assert count_sea_monsters_in_image(image) == 0
+    image = rotate_image_right(image)
+    assert count_sea_monsters_in_image(image) == 2
+    image = rotate_image_right(image)
+    assert count_sea_monsters_in_image(image) == 0
+
+
 if __name__ == "__main__":
+    test_counting()
     test_matching()
     test_matching_handles_directionality_correctly()
-    print(part_1())
+    # print(part_1())
     print(part_2())
