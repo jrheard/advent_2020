@@ -111,7 +111,7 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
     unplaced_tiles = tiles[1:]
 
     while unplaced_tiles:
-        print(len(placed_tiles), len(unplaced_tiles))
+        # print(len(placed_tiles), len(unplaced_tiles))
 
         match = find_first_match(placed_tiles.values(), unplaced_tiles)
         assert match is not None
@@ -147,7 +147,7 @@ def place_tiles(tiles: list[Tile]) -> dict[tuple[int, int], Tile]:
             position = (placed_tile_x - 1, placed_tile_y)
 
         assert position not in placed_tiles
-        print(f"placing {tile.id=} at {position=}")
+        # print(f"placing {tile.id=} at {position=}")
         placed_tiles[position] = tile
 
     return placed_tiles
@@ -229,9 +229,27 @@ def part_2() -> int:
 
             image.append(line)
 
-    breakpoint()
+    num_monster_hashes = 0
 
-    return -1
+    for _ in range(4):
+        image = rotate_image_right(image)
+        if (num_monsters := count_sea_monsters_in_image(image)) > 0:
+            num_monster_hashes = num_monsters * len(SEA_MONSTER_COORDINATES)
+
+    image = flip_image(image)
+
+    for _ in range(4):
+        image = rotate_image_right(image)
+        if (num_monsters := count_sea_monsters_in_image(image)) > 0:
+            num_monster_hashes = num_monsters * len(SEA_MONSTER_COORDINATES)
+
+    # Determine how rough the waters are in the sea monsters' habitat by
+    # counting the number of # that are not part of a sea monster. In the above
+    # example, the habitat's water roughness is 273.
+    # How many # are not part of a sea monster?
+    num_hashes = sum(1 for char in "".join(image) if char == "#")
+
+    return num_hashes - num_monster_hashes
 
 
 def test_matching_handles_directionality_correctly() -> None:
@@ -368,5 +386,5 @@ if __name__ == "__main__":
     test_counting()
     test_matching()
     test_matching_handles_directionality_correctly()
-    # print(part_1())
+    print(part_1())
     print(part_2())
