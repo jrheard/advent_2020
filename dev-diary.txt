@@ -2171,3 +2171,7 @@ rotating it as needed, and finding sea monsters
 ok it's like a week later
 i'm gonna finish up part 2 and then do some other stuff
 
+ok i finished part 2, ezpz
+now i gotta prep for interviews by messing around w codesense and then learning ruby+rails
+gonna start a new advent-2021 repo for practicing ruby
+i wanna come back to advent 2020 and finish the rest of the days, just ran out of time for now, we'll see what happens
