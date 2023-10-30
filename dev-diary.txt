@@ -2175,3 +2175,32 @@ ok i finished part 2, ezpz
 now i gotta prep for interviews by messing around w codesense and then learning ruby+rails
 gonna start a new advent-2021 repo for practicing ruby
 i wanna come back to advent 2020 and finish the rest of the days, just ran out of time for now, we'll see what happens
+
+ok, spent a few days doing advent 2021 in ruby
+but i have a python code interview tomorrow so i'm gonna go back to python 2020 for a day
+let's start day 21
+
+hm i don't totally understand the rules of this one
+
+    Each allergen is found in exactly one ingredient. Each ingredient contains zero or one allergen.
+
+ok cool i missed that on the first read, that helps
+
+    However, even if an allergen isn't listed, the ingredient that contains that
+    allergen could still be present: maybe they forgot to label it, or maybe it was
+    labeled in a language you don't know.
+
+that's the part that muddies my mental model
+
+well, what if we consider the problem one listed allergen at a time?
+a dict of {'fish': ['mxmxvkd kfcds sqjhc nhms', 'sqjhc mxmxvkd sbzzf']} maybe?
+
+how about this
+so for each allergen, you compute an intersected set of all of the ingredients that keep popping up for it
+so in this case it would be {'fish': {'mxmxvkd', 'sqjhc'}}
+
+and then at the end, you take the union of all of those sets
+and for each ingredient, you see if it appears in that union
+and if it doesn't, it's a candidate for the final scoring round
+
+seems like a reasonable start
