@@ -52,8 +52,37 @@ def part_1() -> int:
     )
 
 
-def part_2() -> int:
-    return -1
+def part_2() -> str:
+    foods = load_input()
+    candidates = allergen_candidates(foods)
+
+    # "Now that you've isolated the inert ingredients, you should have enough
+    # information to figure out which ingredient contains which allergen."
+    canonical_dangerous_ingredients = {}
+
+    while candidates:
+        allergen, ingredients = next(
+            (k, v) for k, v in candidates.items() if len(v) == 1
+        )
+        ingredient = ingredients.pop()
+
+        canonical_dangerous_ingredients[ingredient] = allergen
+
+        del candidates[allergen]
+        for ingredients in candidates.values():
+            if ingredient in ingredients:
+                ingredients.remove(ingredient)
+
+    # "Arrange the ingredients alphabetically by their allergen and separate them
+    # by commas to produce your canonical dangerous ingredient list."
+    return ",".join(
+        (
+            k
+            for k, _ in sorted(
+                canonical_dangerous_ingredients.items(), key=lambda kv: kv[1]
+            )
+        )
+    )
 
 
 if __name__ == "__main__":
