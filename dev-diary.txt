@@ -2204,3 +2204,7 @@ and for each ingredient, you see if it appears in that union
 and if it doesn't, it's a candidate for the final scoring round
 
 seems like a reasonable start
+
+cool, parts 1+2 were easy
+part 2 was easier than expected, sounded like i'd have to use stuff from part 1 but i didnt,
+feels like i missed something but i got the right answer so i dunno!
